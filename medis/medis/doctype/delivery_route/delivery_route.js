@@ -1,13 +1,13 @@
 // Copyright (c) 2025, Marwa and contributors
 // For license information, please see license.txt
-
 frappe.ui.form.on("Delivery Route Item", {
     invoice_number: function(frm, cdt, cdn) {
-            update_summary(frm);
+        update_summary(frm);
 
         const child = locals[cdt][cdn];
         if (!child.invoice_number) return;
 
+        // --- Fetch Sales Invoice and set fields ---
         frappe.db.get_doc("Sales Invoice", child.invoice_number)
             .then(invoice => {
                 if (!invoice) {
@@ -19,32 +19,28 @@ frappe.ui.form.on("Delivery Route Item", {
                 frappe.model.set_value(cdt, cdn, "territory", invoice.territory || "");
                 frappe.model.set_value(cdt, cdn, "customer_address", invoice.customer_address || "");
 
-                frappe.db.get_value("Invoice Status Updater", 
-                    { invoice_number: child.invoice_number }, 
+                return frappe.db.get_value(
+                    "Invoice Status Updater",
+                    { invoice_number: child.invoice_number },
                     "number_packed"
-                ).then(res => {
+                );
+            })
+            .then(res => {
+                if (res) {
                     frappe.model.set_value(cdt, cdn, "number_packed", res.message?.number_packed || "");
-                });
+                }
             })
             .catch(err => {
                 frappe.msgprint(__('Error fetching invoice details: ') + err.message);
             });
-    }, 
-    number_packed: function(frm, cdt, cdn) { update_summary(frm); }
-});
 
-frappe.ui.form.on('Delivery Route Item', {
-    // When invoice_number is filled
-    invoice_number: function(frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-
-        // Update total_invoices
+        // --- Update total_invoices ---
         let total = frm.doc.delivery_route_items.filter(r => r.invoice_number).length;
         frm.set_value('total_invoices', total);
 
-        // If last row is filled -> add 2 new rows
+        // --- Add 2 rows if last row is filled ---
         let last_row = frm.doc.delivery_route_items[frm.doc.delivery_route_items.length - 1];
-        if (row === last_row && row.invoice_number) {
+        if (child === last_row && child.invoice_number) {
             let new_row1 = frm.add_child('delivery_route_items');
             let new_row2 = frm.add_child('delivery_route_items');
             frm.refresh_field('delivery_route_items');
@@ -52,18 +48,19 @@ frappe.ui.form.on('Delivery Route Item', {
             // Focus handling
             setTimeout(() => {
                 let grid = frm.fields_dict['delivery_route_items'].grid;
-
-
-                    let input = grid.wrapper.find(`.grid-row[data-idx="${row.idx}"] [data-fieldname="invoice_number"] input`);
-                    if (input && input.length) {
-                        let e = $.Event('keydown');
-                        e.key = "ArrowDown";
-                        e.which = 40;
-                        input.trigger(e);
-                     }
-               
+                let input = grid.wrapper.find(`.grid-row[data-idx="${child.idx}"] [data-fieldname="invoice_number"] input`);
+                if (input && input.length) {
+                    let e = $.Event('keydown');
+                    e.key = "ArrowDown";
+                    e.which = 40;
+                    input.trigger(e);
+                }
             }, 150);
         }
+    },
+
+    number_packed: function(frm, cdt, cdn) {
+        update_summary(frm);
     },
 
     refresh: function(frm) {
@@ -73,14 +70,13 @@ frappe.ui.form.on('Delivery Route Item', {
             frm.refresh_field('delivery_route_items');
         }
 
-        // Attach a focus event listener to the first row’s input
+        // Attach focus event listener to first row
         setTimeout(() => {
             let grid = frm.fields_dict['delivery_route_items'].grid;
             if (grid.grid_rows.length > 0) {
                 let first_input = grid.wrapper.find(`.grid-row[data-idx="1"] [data-fieldname="invoice_number"] input`);
                 if (first_input && first_input.length) {
                     first_input.off("focus.add_row").on("focus.add_row", function () {
-                        // If only one row exists, add another when first row is focused
                         if (frm.doc.delivery_route_items.length === 1) {
                             frm.add_child('delivery_route_items');
                             frm.refresh_field('delivery_route_items');
@@ -99,6 +95,7 @@ frappe.ui.form.on('Delivery Route Item', {
         }, 400);
     }
 });
+
 frappe.ui.form.on("Delivery Route", {
     refresh: function(frm) {
             update_summary(frm);
