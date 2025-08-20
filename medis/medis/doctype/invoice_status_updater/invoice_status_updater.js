@@ -69,7 +69,7 @@ frappe.ui.form.on('Invoice Status Updater', {
                             {
                                 label: "Number Of Packed",
                                 fieldname: "number_packed",
-                                fieldtype: "Float",
+                                fieldtype: "Int",
                                 reqd: 1
                             }
                         ],
