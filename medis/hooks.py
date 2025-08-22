@@ -11,15 +11,15 @@ app_license = "mit"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "medis",
-# 		"logo": "/assets/medis/logo.png",
-# 		"title": "Medis",
-# 		"route": "/medis",
-# 		"has_permission": "medis.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "medis",
+		"logo": "/assets/medis/images/hearth-care-icon.webp",
+		"title": "Medis",
+		"route": "/app/medis-dashboard",
+		"has_permission": False
+	}
+]
 
 # Includes in <head>
 # ------------------
@@ -27,7 +27,8 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/medis/css/medis.css"
 #app_include_js = "assets/medis/js/invoice_status_updater.js"
-#app_include_js = "/assets/medis/js/desktop.js"
+#app_include_js = ["/assets/medis/js/desktop.js"]
+app_include_js = "/assets/medis/js/desktop.js"
 # fixtures = [
 #     {"dt": "Client Script", "filters": [["name", "in", ["add buttons"]]]}
 # ]
@@ -150,11 +151,11 @@ doc_events = {
 		"validate": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.update_delivery_route_status",
         "after_update": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.after_update"
 
-	}, 
+	},
 	"Delivery Route": {
 		"on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
 		"after_insert": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-		
+
 	},
 
 }
