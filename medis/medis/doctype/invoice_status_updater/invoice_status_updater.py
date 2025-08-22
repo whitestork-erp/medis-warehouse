@@ -27,7 +27,7 @@ def update_invoice_status(doc, method):
 
     invoice_number = doc.invoice_number
     target_state = doc.target_state
-
+    
     if not invoice_number or not target_state:
         frappe.throw("❌ Both 'Invoice Number' and 'Target State' are required.")
 

@@ -4,6 +4,7 @@ function applyTargetStateFromURL(frm) {
     if (target && !frm.doc.target_state) {
         frm.set_value('target_state', target);
     }
+
 }
 
 function goToNewFormWithSameTarget(targetState) {
@@ -21,13 +22,14 @@ function goToNewFormWithSameTarget(targetState) {
 }
 
 frappe.ui.form.on('Invoice Status Updater', {
+ 
     setup: function(frm) {
         frm._enter_key_handler = async function(e) {
             if (e.which === 13 && !$(e.target).is('data, [type="data"]')) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                applyTargetStateFromURL(frm);
+                 applyTargetStateFromURL(frm);
 
                 const invoiceNumber = frm.doc.invoice_number;
                 const targetState = frm.doc.target_state;
@@ -45,18 +47,6 @@ frappe.ui.form.on('Invoice Status Updater', {
 
                 const currentState = res.message.workflow_state;
 
-                if (targetState === "Reviewed") {
-                    if (currentState === "Reviewed") {
-                        frappe.msgprint(__("❌ Invoice is already Reviewed"));
-                        return;
-                    }
-
-                    frappe.new_doc('Review Scan', {
-                        invoice_number: invoiceNumber
-                    });
-                    console.log("Redirecting to Review Scan form for invoice:", invoiceNumber);
-                    return;
-                }
 
                 if (targetState === "Packed") {
                     if (currentState === "Packed") {
@@ -93,11 +83,6 @@ frappe.ui.form.on('Invoice Status Updater', {
 
                                 await frappe.ui.form.qz_connect();
                                 const printers = await frappe.ui.form.qz_get_printer_list();
-
-                                console.log("🖨️ Available Printers from QZ Tray:");
-                                printers.forEach((printer, index) => {
-                                    console.log(`${index + 1}: ${printer}`);
-                                });
 
                                 const printerName = "ZDesigner GC420t"; // Replace with actual printer name
                                 if (!printers.includes(printerName)) {
@@ -157,7 +142,7 @@ frappe.ui.form.on('Invoice Status Updater', {
     },
 
     onload: function(frm) {
-        applyTargetStateFromURL(frm);
+         applyTargetStateFromURL(frm);
     },
 
     after_save: function(frm) {

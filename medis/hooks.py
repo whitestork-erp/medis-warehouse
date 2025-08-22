@@ -27,8 +27,7 @@ app_license = "mit"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/medis/css/medis.css"
 #app_include_js = "assets/medis/js/invoice_status_updater.js"
-#app_include_js = ["/assets/medis/js/desktop.js"]
-app_include_js = "/assets/medis/js/desktop.js"
+#app_include_js = "/assets/medis/js/desktop.js"
 # fixtures = [
 #     {"dt": "Client Script", "filters": [["name", "in", ["add buttons"]]]}
 # ]
