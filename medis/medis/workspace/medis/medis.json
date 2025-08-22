@@ -1,0 +1,78 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"nF6cG9p_Fv\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Medis App Dashboard</span>\",\"col\":12}},{\"id\":\"PAZslcVOqC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dispatch For Delivery\",\"col\":3}},{\"id\":\"rwNcSqeA1u\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Start Picking\",\"col\":3}},{\"id\":\"ZvCA9VBJ7e\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Start Reviewing\",\"col\":3}},{\"id\":\"2JvsruXZAe\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Start Packing\",\"col\":3}},{\"id\":\"cnTGb4yJeC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Start Printing\",\"col\":6}},{\"id\":\"QXql96Y44u\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dispatched\",\"col\":3}}]",
+ "creation": "2025-08-22 10:18:22.180207",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "healthcare",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Medis",
+ "links": [],
+ "modified": "2025-08-22 12:49:21.630165",
+ "modified_by": "Administrator",
+ "module": "Medis",
+ "name": "Medis",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 39.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Dispatched",
+   "link_to": "Invoice Status Updater",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Archived\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Start Printing",
+   "link_to": "Invoice Status Updater",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"like\",\"%Printed%\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Start Picking",
+   "link_to": "Invoice Status Updater",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Picking\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Dispatch For Delivery",
+   "link_to": "Invoice Status Updater",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Dispatched\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Start Reviewing",
+   "link_to": "Invoice Status Updater",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Reviewed\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Start Packing",
+   "link_to": "Invoice Status Updater",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Packed\",false]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Medis"
+}
