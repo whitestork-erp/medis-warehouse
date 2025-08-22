@@ -6,9 +6,10 @@ from frappe.workflow.doctype.workflow_action.workflow_action import get_next_pos
 from frappe.model.document import Document
 import cups
 from frappe.utils.jinja import render_template
-import jinja2
 from frappe import _
 import subprocess
+import tempfile
+import os
 
 class InvoiceStatusUpdater(Document):
     # Add before_save hook to prevent duplicate transitions
@@ -113,6 +114,4 @@ def update_invoice_status_with_packed_number(invoice_number=None, number_packed=
     frappe.db.commit()
     return True
 
-@frappe.whitelist()
-def print_packed_invoice(invoice_number, number_packed):
-    frappe.msgprint(f"Printing invoice {invoice_number} with {number_packed} packages")
+
