@@ -13,16 +13,16 @@
  "fields": [
   {
    "fieldname": "invoice_number",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Invoice Number"
+   "label": "Invoice Number",
+   "options": "Sales Invoice"
   },
   {
    "fieldname": "target_state",
    "fieldtype": "Select",
    "label": "Target State",
-   "options": "Printed\nPicking\nReviewed\nPacked\nDispatched\nOut For Delivery\nDelivered\nArchived",
-   "read_only": 1
+   "options": "Printed\nPicking\nReviewed\nPacked\nDispatched\nOut For Delivery\nDelivered\nArchived"
   },
   {
    "fieldname": "status",
@@ -42,7 +42,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-22 12:06:09.963028",
+ "modified": "2025-08-22 17:03:06.766763",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Invoice Status Updater",
