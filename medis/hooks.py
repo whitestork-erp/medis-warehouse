@@ -12,13 +12,13 @@ app_license = "mit"
 
 # Each item in the list will be shown as an app in the apps page
 add_to_apps_screen = [
-	{
-		"name": "medis",
-		"logo": "/assets/medis/images/hearth-care-icon.webp",
-		"title": "Medis",
-		"route": "/app/medis-dashboard",
-		"has_permission": False
-	}
+    {
+        "name": "medis",
+        "logo": "/assets/medis/images/hearth-care-icon.webp",
+        "title": "Medis",
+        "route": "/app/medis-dashboard",
+        "has_permission": False,
+    }
 ]
 
 # Includes in <head>
@@ -26,12 +26,31 @@ add_to_apps_screen = [
 # hooks.py in your custom app
 # include js, css files in header of desk.html
 # app_include_css = "/assets/medis/css/medis.css"
-#app_include_js = "assets/medis/js/invoice_status_updater.js"
-#app_include_js = ["/assets/medis/js/desktop.js"]
+# app_include_js = "assets/medis/js/invoice_status_updater.js"
+# app_include_js = ["/assets/medis/js/desktop.js"]
 app_include_js = "/assets/medis/js/desktop.js"
-# fixtures = [
-#     {"dt": "Client Script", "filters": [["name", "in", ["add buttons"]]]}
-# ]
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [["name", "in", ["Sales Invoice-workflow_state"]]],
+    },
+    {
+        "dt": "Role",
+        "filters": [["name", "in", ["Medis - Salesman"]]],
+    },
+    {
+        "dt": "Workflow",
+        "filters": [["name", "in", ["Sales Invoice Workflow", "Delivery Route Workflow"]]],
+    }
+]
+
+
+# on_print_pdf = {
+#     "Sales Invoice": "medis.utils.increment_print_count"
+# }
+
+# fixtures = ["Sales Invoice"]
+
 
 # include js, css files in header of web template
 # web_include_css = "/assets/medis/css/medis.css"
@@ -88,7 +107,7 @@ doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 # ------------
 
 # before_install = "medis.install.before_install"
-after_install = "medis.medis.scripts.after_install.after_install"
+# after_install = "medis.medis.scripts.after_install.after_install"
 
 # Uninstallation
 # ------------
@@ -143,21 +162,24 @@ after_install = "medis.medis.scripts.after_install.after_install"
 # Hook on document methods and events
 
 doc_events = {
-	 "Invoice Status Updater": {
-		"validate": "medis.medis.doctype.invoice_status_updater.invoice_status_updater.update_invoice_status",
-
-	},
-     "Delivery Route Status Updater": {
-		"validate": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.update_delivery_route_status",
-        "after_update": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.after_update"
-
-	},
-	"Delivery Route": {
-		"on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-		"after_insert": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-
-	},
-
+    "Invoice Status Updater": {
+        "validate": "medis.medis.doctype.invoice_status_updater.invoice_status_updater.update_invoice_status",
+    },
+    "Delivery Route Status Updater": {
+        "validate": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.update_delivery_route_status",
+        "after_update": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.after_update",
+    },
+    "Delivery Route": {
+        "on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
+        "after_insert": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
+        # "before_print":"medis.medis.doctype.delivery_route.delivery_route.before_print",
+        # "on_print": "medis.medis.doctype.delivery_route.delivery_route.on_print",
+        # "on_print_pdf": "medis.medis.doctype.delivery_route.delivery_route.on_print_pdf",
+        # "after_print": "medis.medis.doctype.delivery_route.delivery_route.after_print"
+    },
+    # "Sales Invoice": {
+    #     "on_workflow_action": "medis.medis.doctype.delivery_route.delivery_route.after_print"
+    # }
 }
 
 # Scheduled Tasks
@@ -214,6 +236,7 @@ doc_events = {
 # before_request = ["medis.utils.before_request"]
 # after_request = ["medis.utils.after_request"]
 
+
 # Job Events
 # ----------
 # before_job = ["medis.utils.before_job"]
@@ -256,4 +279,3 @@ doc_events = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-

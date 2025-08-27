@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "Medis",
  "links": [],
- "modified": "2025-08-22 12:49:21.630165",
+ "modified": "2025-08-22 14:24:02.754073",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Medis",
@@ -30,7 +30,7 @@
    "doc_view": "New",
    "label": "Dispatched",
    "link_to": "Invoice Status Updater",
-   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Archived\",false]]",
+   "stats_filter": "[[\"Invoice Status Updater\",\"target_state\",\"=\",\"Reviewed\",false]]",
    "type": "DocType"
   },
   {
