@@ -41,7 +41,9 @@ fixtures = [
     {
         "dt": "Workflow",
         "filters": [["name", "in", ["Sales Invoice Workflow", "Delivery Route Workflow"]]],
-    }
+    },
+    "Workflow State",
+    "Workflow Action",
 ]
 
 
