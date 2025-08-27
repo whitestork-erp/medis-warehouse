@@ -19,8 +19,9 @@
   },
   {
    "fieldname": "target_state",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Target State",
+   "options": "Printed\nPicking\nReviewed\nPacked\nDispatched\nOut For Delivery\nDelivered\nArchived",
    "read_only": 1
   },
   {
@@ -41,7 +42,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-14 10:14:00.393996",
+ "modified": "2025-08-22 12:06:09.963028",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Invoice Status Updater",

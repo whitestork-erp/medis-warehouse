@@ -4,7 +4,6 @@
 import frappe
 from frappe.workflow.doctype.workflow_action.workflow_action import get_next_possible_transitions
 from frappe.model.document import Document
-import cups
 from frappe.utils.jinja import render_template
 from frappe import _
 import subprocess
@@ -100,19 +99,20 @@ def update_invoice_status_with_packed_number(invoice_number=None, number_packed=
     # Update invoice state
     sales_invoice.workflow_state = target_state
     sales_invoice.save(ignore_permissions=True)
-    
+
     # Save packed number to updater doc
     if updater_docname and frappe.db.exists("Invoice Status Updater", updater_docname):
         updater_doc = frappe.get_doc("Invoice Status Updater", updater_docname)
         updater_doc.number_packed = number_packed
         updater_doc.status = target_state  # Update status field
-        
+
         # Set flag to bypass standard workflow
         updater_doc.bypass_workflow = True
         updater_doc.save(ignore_permissions=True)
-    
+
     frappe.db.commit()
     return True
+
 
 @frappe.whitelist()
 def print_packed_invoice(invoice_number, number_packed):
