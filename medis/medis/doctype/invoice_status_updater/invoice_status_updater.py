@@ -114,3 +114,69 @@ def update_invoice_status_with_packed_number(invoice_number=None, number_packed=
     return True
 
 
+@frappe.whitelist()
+def print_packed_invoice(invoice_number, number_packed):
+    frappe.msgprint(f"Printing invoice {invoice_number} with {number_packed} packages")
+
+@frappe.whitelist()
+def send_zpl_to_printer(zpl):
+    try:
+        # Connect to CUPS
+        conn = cups.Connection()
+
+        # Find a Zebra-compatible printer
+        printers = conn.getPrinters()
+        zebra_printers = [name for name in printers if 'Zebra' in name or 'GC420t' in name]
+        if not zebra_printers:
+            frappe.throw("❌ No Zebra-compatible printers found in CUPS.")
+        
+        printer_name = zebra_printers[0]  # Use the first match
+        print(f"Using printer: {printer_name}")
+        # # Method 1: Try using lpr command
+        # try:
+        #     with tempfile.NamedTemporaryFile(mode='w', suffix='.zpl', delete=False) as f:
+        #         f.write(zpl)
+        #         temp_file = f.name
+
+        #     result = subprocess.run(
+        #         ['lpr', '-P', printer_name, '-o', 'raw', temp_file],
+        #         capture_output=True, text=True
+        #     )
+
+        #     os.unlink(temp_file)
+
+        #     if result.returncode == 0:
+        #         return {
+        #             "success": True,
+        #             "message": f"✅ ZPL sent via lpr to '{printer_name}'",
+        #             "method": "lpr"
+        #         }
+        #     else:
+        #         frappe.log_error(f"lpr error: {result.stderr}")
+        # except Exception as lpr_error:
+        #     frappe.log_error(f"lpr method failed: {str(lpr_error)}")
+
+        # Method 2: Fallback to CUPS API
+        try:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.zpl', delete=False) as f:
+                f.write(zpl)
+                temp_file = f.name
+
+            job_id = conn.printFile(printer_name, temp_file, "ZPL Label", {'raw': 'true'})
+            os.unlink(temp_file)
+
+            return {
+                "success": True,
+                "message": f"✅ ZPL sent via CUPS to '{printer_name}' (Job ID: {job_id})",
+                "method": "cups",
+                "job_id": job_id
+            }
+        except cups.IPPError as cups_error:
+            frappe.log_error(f"CUPS error: {str(cups_error)}")
+
+        frappe.throw("❌ Failed to print using both lpr and CUPS. Check printer setup.")
+
+    except Exception as e:
+        error_msg = f"🛑 Printing error: {str(e)}"
+        frappe.log_error(error_msg)
+        frappe.throw(error_msg)
