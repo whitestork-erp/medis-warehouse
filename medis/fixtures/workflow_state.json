@@ -57,28 +57,10 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-21 10:22:26.397047",
-  "name": "Draft",
-  "style": "",
-  "workflow_state_name": "Draft"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
   "modified": "2025-08-21 10:22:26.489637",
   "name": "Submit",
   "style": "",
   "workflow_state_name": "Submit"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-21 10:22:26.494919",
-  "name": "Delivered",
-  "style": "",
-  "workflow_state_name": "Delivered"
  },
  {
   "docstatus": 0,
@@ -93,24 +75,6 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-25 12:47:43.259573",
-  "name": "Waiting For Picking",
-  "style": "",
-  "workflow_state_name": "Waiting For Picking"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-21 10:22:26.398033",
-  "name": "Out For Delivery",
-  "style": "",
-  "workflow_state_name": "Out For Delivery"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
   "modified": "2025-08-25 12:50:50.087869",
   "name": "Waiting For Delivery",
   "style": "",
@@ -120,28 +84,19 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-21 10:22:26.495603",
-  "name": "Archived",
+  "modified": "2025-08-21 10:22:26.397047",
+  "name": "Draft",
   "style": "",
-  "workflow_state_name": "Archived"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "ok-sign",
-  "modified": "2025-08-21 12:17:01.026152",
-  "name": "Approved",
-  "style": "Success",
-  "workflow_state_name": "Approved"
+  "workflow_state_name": "Draft"
  },
  {
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-25 12:49:59.785613",
-  "name": "Controlling",
+  "modified": "2025-08-25 12:47:43.259573",
+  "name": "Waiting For Picking",
   "style": "",
-  "workflow_state_name": "Controlling"
+  "workflow_state_name": "Waiting For Picking"
  },
  {
   "docstatus": 0,
@@ -165,18 +120,63 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-21 10:22:26.493291",
-  "name": "Packed",
+  "modified": "2025-08-25 12:49:16.481294",
+  "name": "Ready For Picking",
   "style": "",
-  "workflow_state_name": "Packed"
+  "workflow_state_name": "Ready For Picking"
  },
  {
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-25 12:49:16.481294",
-  "name": "Ready For Picking",
+  "modified": "2025-08-21 10:22:26.495603",
+  "name": "Archived",
   "style": "",
-  "workflow_state_name": "Ready For Picking"
+  "workflow_state_name": "Archived"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "ok-sign",
+  "modified": "2025-08-21 12:17:01.026152",
+  "name": "Approved",
+  "style": "Success",
+  "workflow_state_name": "Approved"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-21 10:22:26.494919",
+  "name": "Delivered",
+  "style": "",
+  "workflow_state_name": "Delivered"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-25 12:49:59.785613",
+  "name": "Controlling",
+  "style": "",
+  "workflow_state_name": "Controlling"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-21 10:22:26.398033",
+  "name": "Out For Delivery",
+  "style": "",
+  "workflow_state_name": "Out For Delivery"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-21 10:22:26.493291",
+  "name": "Packed",
+  "style": "",
+  "workflow_state_name": "Packed"
  }
 ]

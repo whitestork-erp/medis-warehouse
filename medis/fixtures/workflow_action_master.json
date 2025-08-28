@@ -1,0 +1,156 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.408041",
+  "name": "Dispatch For Delivery",
+  "workflow_action_name": "Dispatch For Delivery"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.408843",
+  "name": "Mark As Completed",
+  "workflow_action_name": "Mark As Completed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.496332",
+  "name": "Start Printing",
+  "workflow_action_name": "Start Printing"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.497008",
+  "name": "Start Picking",
+  "workflow_action_name": "Start Picking"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.497680",
+  "name": "Start Reviewing",
+  "workflow_action_name": "Start Reviewing"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.498306",
+  "name": "Start Packing",
+  "workflow_action_name": "Start Packing"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.499099",
+  "name": "Assign Delivery Route",
+  "workflow_action_name": "Assign Delivery Route"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.499839",
+  "name": "Mark As Delivered",
+  "workflow_action_name": "Mark As Delivered"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 12:17:01.032889",
+  "name": "Reject",
+  "workflow_action_name": "Reject"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 12:17:01.033195",
+  "name": "Review",
+  "workflow_action_name": "Review"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-25 14:35:11.751639",
+  "name": "Control Submit",
+  "workflow_action_name": "Control Submit"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-28 12:30:10.487891",
+  "name": "Delivered",
+  "workflow_action_name": "Delivered"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-28 12:31:48.740451",
+  "name": "Packed",
+  "workflow_action_name": "Packed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-28 12:31:58.890442",
+  "name": "Pack",
+  "workflow_action_name": "Pack"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-25 12:52:08.932041",
+  "name": "Print",
+  "workflow_action_name": "Print"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-28 12:31:27.712511",
+  "name": "Cancel",
+  "workflow_action_name": "Cancel"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 10:22:26.500761",
+  "name": "Archive",
+  "workflow_action_name": "Archive"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-21 12:17:01.032561",
+  "name": "Approve",
+  "workflow_action_name": "Approve"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-25 12:54:16.830066",
+  "name": "Control Scan",
+  "workflow_action_name": "Control Scan"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-28 12:29:37.631980",
+  "name": "Deliver",
+  "workflow_action_name": "Deliver"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-25 12:52:50.979876",
+  "name": "Picking Scan",
+  "workflow_action_name": "Picking Scan"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2025-08-27 00:49:05.957134",
+  "name": "Submit",
+  "workflow_action_name": "Submit"
+ }
+]
