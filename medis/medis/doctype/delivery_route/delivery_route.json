@@ -20,7 +20,8 @@
   "column_break_ucen",
   "total_packages",
   "section_break_lled",
-  "delivery_route_items"
+  "delivery_route_items",
+  "amended_from"
  ],
  "fields": [
   {
@@ -42,6 +43,7 @@
    "fieldname": "driver",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_preview": 1,
    "label": "Driver",
    "options": "Driver"
   },
@@ -92,6 +94,7 @@
    "default": "Today",
    "fieldname": "delivery_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Delivery Date",
    "reqd": 1
   },
@@ -102,13 +105,26 @@
   {
    "fieldname": "route_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Delivery Route Name"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Delivery Route",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2025-08-19 10:48:10.688880",
+ "modified": "2025-08-28 14:56:29.285753",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Delivery Route",

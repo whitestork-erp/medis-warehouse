@@ -41,7 +41,7 @@ frappe.listview_settings['Sales Invoice'] = {
             const state = rowData.workflow_state;
 
             // Create print button
-            const disabled = (state !== 'Draft');
+            const disabled = (state !== 'Pending');
             const $btn = $(`
                 <button class="btn btn-xs ${disabled ? 'btn-secondary' : 'btn-primary'} btn-print-inline"
                         ${disabled ? 'disabled' : ''}
@@ -62,23 +62,23 @@ frappe.listview_settings['Sales Invoice'] = {
                 e.stopPropagation();
                 e.preventDefault();
 
-                if (state === 'Draft') {
+                if (state === 'Pending') {
 					console.log("Printing and updating workflow for", name);
                     frappe.call({
                         method: 'frappe.model.workflow.bulk_workflow_approval',
                         args: {
                             doctype: 'Sales Invoice',
                             docnames: [name],
-                            action: 'Submit'
+                            action: 'Print'
                         },
                         freeze: true,
                         freeze_message: __('Processing...'),
                         callback(r) {
                             if (!r.exc) {
-                                frappe.show_alert({
-                                    message: __('Sales Invoice printed and workflow updated'),
-                                    indicator: 'green'
-                                });
+                                // frappe.show_alert({
+                                //     message: __('Sales Invoice printed and workflow updated'),
+                                //     indicator: 'green'
+                                // });
                                 listview.refresh();
                             }
                         }
