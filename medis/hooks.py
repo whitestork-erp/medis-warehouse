@@ -43,7 +43,7 @@ fixtures = [
         "filters": [["name", "in", ["Sales Invoice Workflow", "Delivery Route Workflow"]]],
     },
     "Workflow State",
-    "Workflow Action",
+    "Workflow Action Master",
     "Custom HTML Block"
 ]
 
@@ -165,16 +165,10 @@ doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 # Hook on document methods and events
 
 doc_events = {
-    "Invoice Status Updater": {
-        "validate": "medis.medis.doctype.invoice_status_updater.invoice_status_updater.update_invoice_status",
-    },
-    "Delivery Route Status Updater": {
-        "validate": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.update_delivery_route_status",
-        "after_update": "medis.medis.doctype.delivery_route_status_updater.delivery_route_status_updater.after_update",
-    },
     "Delivery Route": {
         "on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
         "after_insert": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
+        "on_update_after_submit": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states"
         # "before_print":"medis.medis.doctype.delivery_route.delivery_route.before_print",
         # "on_print": "medis.medis.doctype.delivery_route.delivery_route.on_print",
         # "on_print_pdf": "medis.medis.doctype.delivery_route.delivery_route.on_print_pdf",

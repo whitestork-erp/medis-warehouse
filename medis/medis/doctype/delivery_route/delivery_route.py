@@ -27,6 +27,8 @@ def update_invoice_states(doc, method):
         action = "Cancel"
     elif doc.workflow_state == "Packed":
         action = "Pack"
+    elif doc.workflow_state == "Archived":
+        action = "Archive"
     if not action:
         return
     print("-----------action",action)

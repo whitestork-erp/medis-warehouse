@@ -18,9 +18,9 @@ def pack_invoice(invoice, packages, items):
         # res = get_common_transition_actions(doc,"Sales Invoice")
         # print("---------------res",res)
         doc.custom_packs = packages
-        apply_workflow(doc, "Approve")
         print("---------------Approve",doc)
-        # doc.save(ignore_permissions=True)
+        doc.save(ignore_permissions=True)
+        apply_workflow(doc, "Approve")
         return {"success": True}
     except Exception as e:
         frappe.log_error(title="Pack Invoice Error", message=str(e))

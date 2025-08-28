@@ -4,8 +4,8 @@ frappe.ui.form.on("Delivery Route Item", {
 	invoice_number: function (frm, cdt, cdn) {
 		update_summary(frm);
 
-		const child = locals[cdt][cdn];
-		if (!child.invoice_number) return;
+		// const child = locals[cdt][cdn];
+		// if (!child.invoice_number) return;
 
 		// --- Fetch Sales Invoice and set fields ---
 		// frappe.db.get_doc("Sales Invoice", child.invoice_number)
