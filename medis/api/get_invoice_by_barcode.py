@@ -8,11 +8,12 @@ def get_invoice_by_barcode(invoice):
         doc = frappe.get_doc("Sales Invoice", invoice)
 
         delivery_state = doc.workflow_state
-
-        if delivery_state != "Picking":
-            return None
-        apply_workflow(doc, "Control Scan")
-        return doc
+        if delivery_state == "Picking":
+            apply_workflow(doc, "Control Scan")
+            return doc
+        if delivery_state == "Controlling":
+            return doc
+        return None
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "get_invoice_by_barcode")
         return None
