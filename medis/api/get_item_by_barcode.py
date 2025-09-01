@@ -11,8 +11,9 @@ def get_item_by_barcode(barcode):
         ["parent as item_code"],
         as_dict=True
     )
+
     if not barcode_row:
-        return None
+        return {"ok": False, "msg": f"Item with barcode {barcode} not found"}
 
     item = frappe.get_doc("Item", barcode_row.item_code)
-    return {"item_code": item.item_code, "item_name": item.item_name}
+    return {"ok": True, "item_code": item.item_code, "item_name": item.item_name}

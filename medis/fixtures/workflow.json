@@ -4,7 +4,7 @@
   "doctype": "Workflow",
   "document_type": "Delivery Route",
   "is_active": 1,
-  "modified": "2025-08-28 23:50:09.523311",
+  "modified": "2025-09-01 14:38:00.701048",
   "name": "Delivery Route Workflow",
   "override_status": 1,
   "send_email_alert": 0,
@@ -134,19 +134,6 @@
     "workflow_builder_id": null
    },
    {
-    "action": "Pack",
-    "allow_self_approval": 1,
-    "allowed": "All",
-    "condition": null,
-    "next_state": "Packed",
-    "parent": "Delivery Route Workflow",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "send_email_to_creator": 0,
-    "state": "Out For Delivery",
-    "workflow_builder_id": null
-   },
-   {
     "action": "Cancel",
     "allow_self_approval": 1,
     "allowed": "All",
@@ -182,19 +169,6 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Packed",
-    "workflow_builder_id": null
-   },
-   {
-    "action": "Archive",
-    "allow_self_approval": 1,
-    "allowed": "All",
-    "condition": null,
-    "next_state": "Archived",
-    "parent": "Delivery Route Workflow",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "send_email_to_creator": 0,
     "state": "Canceled",
     "workflow_builder_id": null
    }
@@ -208,7 +182,7 @@
   "doctype": "Workflow",
   "document_type": "Sales Invoice",
   "is_active": 1,
-  "modified": "2025-08-28 22:16:53.651221",
+  "modified": "2025-09-01 14:32:42.169067",
   "name": "Sales Invoice Workflow",
   "override_status": 1,
   "send_email_alert": 0,
@@ -436,6 +410,22 @@
     "update_field": "workflow_state",
     "update_value": "Canceled",
     "workflow_builder_id": null
+   },
+   {
+    "allow_edit": "All",
+    "avoid_status_override": 0,
+    "doc_status": "1",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Sales Invoice Workflow",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "send_email": 1,
+    "state": "Returned",
+    "update_field": "workflow_state",
+    "update_value": "Returned",
+    "workflow_builder_id": null
    }
   ],
   "transitions": [
@@ -505,6 +495,19 @@
     "workflow_builder_id": null
    },
    {
+    "action": "Picking Scan",
+    "allow_self_approval": 1,
+    "allowed": "All",
+    "condition": null,
+    "next_state": "Picking",
+    "parent": "Sales Invoice Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Controlling",
+    "workflow_builder_id": null
+   },
+   {
     "action": "Assign Delivery Route",
     "allow_self_approval": 1,
     "allowed": "All",
@@ -531,11 +534,11 @@
     "workflow_builder_id": null
    },
    {
-    "action": "Pack",
+    "action": "Return",
     "allow_self_approval": 1,
     "allowed": "All",
     "condition": null,
-    "next_state": "Packed",
+    "next_state": "Returned",
     "parent": "Sales Invoice Workflow",
     "parentfield": "transitions",
     "parenttype": "Workflow",
@@ -548,7 +551,7 @@
     "allow_self_approval": 1,
     "allowed": "All",
     "condition": null,
-    "next_state": "Canceled",
+    "next_state": "Packed",
     "parent": "Sales Invoice Workflow",
     "parentfield": "transitions",
     "parenttype": "Workflow",
@@ -567,32 +570,6 @@
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
     "state": "Delivered",
-    "workflow_builder_id": null
-   },
-   {
-    "action": "Archive",
-    "allow_self_approval": 1,
-    "allowed": "All",
-    "condition": null,
-    "next_state": "Archived",
-    "parent": "Sales Invoice Workflow",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "send_email_to_creator": 0,
-    "state": "Packed",
-    "workflow_builder_id": null
-   },
-   {
-    "action": "Archive",
-    "allow_self_approval": 1,
-    "allowed": "All",
-    "condition": null,
-    "next_state": "Archived",
-    "parent": "Sales Invoice Workflow",
-    "parentfield": "transitions",
-    "parenttype": "Workflow",
-    "send_email_to_creator": 0,
-    "state": "Canceled",
     "workflow_builder_id": null
    }
   ],

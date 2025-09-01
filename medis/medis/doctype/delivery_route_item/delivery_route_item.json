@@ -17,8 +17,9 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Invoice Number",
-   "link_filters": "[[\"Sales Invoice\",\"workflow_state\",\"=\",\"Packed\"]]",
-   "options": "Sales Invoice"
+   "no_copy": 1,
+   "options": "Sales Invoice",
+   "set_only_once": 1
   },
   {
    "fetch_from": "invoice_number.customer",
@@ -53,7 +54,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-08-28 23:32:56.788004",
+ "modified": "2025-09-01 11:19:13.747335",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Delivery Route Item",

@@ -1,202 +1,99 @@
-// Copyright (c) 2025, Marwa and contributors
-// For license information, please see license.txt
 frappe.ui.form.on("Delivery Route Item", {
-	invoice_number: function (frm, cdt, cdn) {
-		update_summary(frm);
-
-		// const child = locals[cdt][cdn];
-		// if (!child.invoice_number) return;
-
-		// --- Fetch Sales Invoice and set fields ---
-		// frappe.db.get_doc("Sales Invoice", child.invoice_number)
-		//     .then(invoice => {
-		//         if (!invoice) {
-		//             frappe.msgprint(__('Invoice not found'));
-		//             return;
-		//         }
-
-		//         frappe.model.set_value(cdt, cdn, "customer", invoice.customer || "");
-		//         frappe.model.set_value(cdt, cdn, "territory", invoice.territory || "");
-		//         frappe.model.set_value(cdt, cdn, "customer_address", invoice.customer_address || "");
-
-		//         return frappe.db.get_value(
-		//             "Invoice Status Updater",
-		//             { invoice_number: child.invoice_number },
-		//             "number_packed"
-		//         );
-		//     })
-		//     .then(res => {
-		//         // if (res) {
-		//         //     frappe.model.set_value(cdt, cdn, "number_packed", res.message?.number_packed || "");
-		//         // }
-		//     })
-		//     .catch(err => {
-		//         frappe.msgprint(__('Error fetching invoice details: ') + err.message);
-		//     });
-
-		// --- Update total_invoices ---
-		let total = frm.doc.delivery_route_items.filter((r) => r.invoice_number).length;
-		frm.set_value("total_invoices", total);
-
-		// --- Add 2 rows if last row is filled ---
-		// let last_row = frm.doc.delivery_route_items[frm.doc.delivery_route_items.length - 1];
-		// if (child === last_row && child.invoice_number) {
-		//     // let new_row1 = frm.add_child('delivery_route_items');
-		//     // let new_row2 = frm.add_child('delivery_route_items');
-		//     frm.refresh_field('delivery_route_items');
-
-		//     // Focus handling
-		//     setTimeout(() => {
-		//         let grid = frm.fields_dict['delivery_route_items'].grid;
-		//         let input = grid.wrapper.find(`.grid-row[data-idx="${child.idx}"] [data-fieldname="invoice_number"] input`);
-		//         if (input && input.length) {
-		//             let e = $.Event('keydown');
-		//             e.key = "ArrowDown";
-		//             e.which = 40;
-		//             input.trigger(e);
-		//         }
-		//     }, 150);
-		// }
+	invoice_number: function (frm) {
+		frm.set_query("invoice_number", "delivery_route_item", function (doc, cdt, cdn) {
+			let selected_invoices = (doc.delivery_route_item || [])
+				.filter((row) => row.name !== cdn)
+				.map((row) => row.invoice_number)
+				.filter(Boolean);
+			return {
+				filters: {
+					workflow_state: "Packed",
+					name: ["not in", selected_invoices],
+				},
+			};
+		});
+		frm.refresh_field("delivery_route_item");
 	},
-
 	number_packed: function (frm, cdt, cdn) {
 		update_summary(frm);
-	},
-
-	refresh: function (frm) {
-		// Ensure at least 1 row exists
-		if (frm.doc.delivery_route_items.length === 0) {
-			frm.add_child("delivery_route_items");
-			frm.refresh_field("delivery_route_items");
-		}
-
-		// Attach focus event listener to first row
-		// setTimeout(() => {
-		// 	let grid = frm.fields_dict["delivery_route_items"].grid;
-		// 	if (grid.grid_rows.length > 0) {
-		// 		let first_input = grid.wrapper.find(
-		// 			`.grid-row[data-idx="1"] [data-fieldname="invoice_number"] input`
-		// 		);
-		// 		if (first_input && first_input.length) {
-		// 			first_input.off("focus.add_row").on("focus.add_row", function () {
-		// 				if (frm.doc.delivery_route_items.length === 1) {
-		// 					frm.add_child("delivery_route_items");
-		// 					frm.refresh_field("delivery_route_items");
-		// 				}
-		// 			});
-		// 		}
-		// 	}
-		// }, 300);
-
-		// Focus the first row by default
-		// setTimeout(() => {
-		//     if (frm.doc.delivery_route_items.length > 0) {
-		//         let grid = frm.fields_dict['delivery_route_items'].grid;
-		//         grid.grid_rows[0].focus_on_field('invoice_number');
-		//     }
-		// }, 400);
 	},
 });
 
 frappe.ui.form.on("Delivery Route", {
-	refresh: function (frm) {
-		update_summary(frm);
-
-		// frm.fields_dict["delivery_route_items"].grid.get_field("invoice_number").get_query =
-		// 	function (doc, cdt, cdn) {
-		// 		// collect already selected invoices in child table
-		// 		let selected_invoices = (doc.delivery_route_items || []).map(
-		// 			(row) => row.invoice_number
-		// 		);
-
-		// 		return {
-		// 			filters: [
-		// 				["Sales Invoice", "workflow_state", "=", "Packed"], // only packed invoices
-		// 				["Sales Invoice", "name", "not in", selected_invoices], // exclude already picked
-		// 			],
-		// 		};
-		// 	};
-
-		// if (frm.doc.workflow_state === "Out For Delivery" && !frm.doc.driver) {
-		// 	frappe.msgprint({
-		// 		title: __("Driver Required"),
-		// 		indicator: "red",
-		// 		message: __(
-		// 			"You must assign a driver before setting this Delivery Route to <b>Out For Delivery</b>."
-		// 		),
-		// 	});
-
-		// 	// Scroll and focus to driver field
-		// 	frm.scroll_to_field("driver");
-		// 	frm.set_df_property("driver", "reqd", 1);
-		// }
+	onload(frm) {
+		frm.set_query("invoice_number", "delivery_route_item", function (doc, cdt, cdn) {
+			return {
+				filters: {
+					workflow_state: "Packed",
+				},
+			};
+		});
 	},
-	before_save: function (frm) {
-		// Remove empty child rows
-		frm.doc.delivery_route_items = frm.doc.delivery_route_items.filter(
-			(row) => row.invoice_number
-		);
-		frm.refresh_field("delivery_route_items");
+	before_workflow_action: async (frm, doc, ac) => {
+		console.log("Work Flow Triggered", frm.selected_workflow_action);
 
-		// Update total_invoices
-		let total = frm.doc.delivery_route_items.length;
-		frm.set_value("total_invoices", total);
-	},
+		let promise = new Promise((resolve, reject) => {
+			frappe.dom.unfreeze();
 
-	delivery_route_items_add: function (frm) {
-		update_summary(frm);
-	},
-	delivery_route_items_remove: function (frm) {
-		update_summary(frm);
-	},
-	delivery_route_items_on_form_rendered: function (frm) {
-		update_summary(frm);
+			if (frm.selected_workflow_action == "Cancel") {
+				frappe.confirm(
+					"<b>Are you sure you want to cancel this delivery route?</b><br>This will also cancel all associated sales invoices.",
+					async () => {
+						try {
+							// Call backend to cancel all sales invoices for this delivery route
+							frappe.call({
+								method: "medis.medis.doctype.delivery_route.delivery_route.cancel_delivery_route_invoices",
+								args: {
+									delivery_route_name: frm.doc.name,
+								},
+								callback: function (r) {
+									if (r.message) {
+										frappe.msgprint({
+											title: __("Success"),
+											message: __(
+												"Delivery route and associated sales invoices have been cancelled successfully."
+											),
+											indicator: "green",
+										});
+										resolve();
+									}
+								},
+								error: function (r) {
+									frappe.msgprint({
+										title: __("Error"),
+										message: __(
+											"Failed to cancel sales invoices. Please try again."
+										),
+										indicator: "red",
+									});
+									reject();
+								},
+							});
+						} catch (error) {
+							frappe.msgprint({
+								title: __("Error"),
+								message: __("An unexpected error occurred: ") + error.message,
+								indicator: "red",
+							});
+							reject();
+						}
+					},
+					() => reject()
+				);
+			} else if (frm.selected_workflow_action == "Deliver") {
+				// Show delivery management dialog
+				show_delivery_management_dialog(frm, resolve, reject);
+			} else {
+				resolve();
+			}
+		});
+		await promise.catch(() => frappe.throw());
 	},
 });
 
-// frappe.listview_settings["Delivery Route"] = {
-// 	onload(listview) {
-// 		const currentUserRoles = frappe.boot.user.roles || [];
-
-// 		// Fetch the Delivery Route workflow definition
-// 		// frappe.call({
-// 		// 	method: "frappe.client.get",
-// 		// 	args: {
-// 		// 		doctype: "Workflow",
-// 		// 		name: "Delivery Route",
-// 		// 	},
-// 		// 	callback: function (r) {
-// 		// 		if (!r.message) return;
-
-// 		// 		const workflow = r.message;
-// 		// 		const transitions = workflow.transitions || [];
-
-// 		// 		transitions.forEach((transition) => {
-// 		// 			const allowedRoles = transition.allowed || "";
-// 		// 			const rolesArray = allowedRoles.split(",").map((role) => role.trim());
-// 		// 			const hasAccess = rolesArray.some((role) => currentUserRoles.includes(role));
-
-// 		// 			if (hasAccess) {
-// 		// 				listview.page.add_inner_button(transition.action, () => {
-// 		// 					const route = frappe.router.slug("Delivery Route Status Updater");
-// 		// 					const target_state = encodeURIComponent(transition.next_state);
-
-// 		// 					const new_route = `/app/${route}/new-${frappe.model.scrub(
-// 		// 						"Delivery Route Status Updater"
-// 		// 					)}-${frappe.utils.get_random(10)}?target_state=${target_state}`;
-
-// 		// 					window.location.href = new_route;
-// 		// 				});
-// 		// 			}
-// 		// 		});
-// 		// 	},
-// 		// });
-// 	},
-// };
-
-// calculate summary
+// Calculate summary
 function update_summary(frm) {
-	const items = frm.doc.delivery_route_items || [];
+	const items = frm.doc.delivery_route_item || [];
 
 	frm.set_value("total_invoices", items.length);
 
@@ -205,4 +102,310 @@ function update_summary(frm) {
 
 	let total_packages = items.reduce((sum, r) => sum + (r.number_packed || 0), 0);
 	frm.set_value("total_packages", total_packages);
+}
+
+// Show delivery management dialog
+function show_delivery_management_dialog(frm, resolve, reject) {
+	console.log("-----------frm-----------", frm);
+	// Get all invoices for this delivery route
+	// frappe.call({
+	// 	method: "medis.medis.doctype.delivery_route.delivery_route.get_delivery_route_invoices",
+	// 	args: {
+	// 		delivery_route_name: frm.doc.name
+	// 	},
+	// 	callback: function(r) {
+	// 		if (r.message && r.message.length > 0) {
+	// 			let invoices = r.message;
+
+	// 			// Create the dialog
+	// 			let dialog = new frappe.ui.Dialog({
+	// 				title: __("Manage Invoice Deliveries"),
+	// 				size: "large",
+	// 				fields: [
+	// 					{
+	// 						fieldtype: "HTML",
+	// 						fieldname: "invoice_list",
+	// 						options: generate_invoice_list_html(invoices)
+	// 					}
+	// 				],
+	// 				primary_action_label: __("Apply Actions"),
+	// 				primary_action: function() {
+	// 					apply_invoice_actions(dialog, invoices, frm, resolve, reject);
+	// 				},
+	// 				secondary_action_label: __("Cancel"),
+	// 				secondary_action: function() {
+	// 					dialog.hide();
+	// 					reject();
+	// 				}
+	// 			});
+
+	// 			// Show dialog first
+	// 			dialog.show();
+
+	// 			// Add event listeners for action buttons after dialog is shown
+	// 			setup_invoice_action_listeners(dialog, invoices);
+
+	// 		} else {
+	// 			frappe.msgprint({
+	// 				title: __("No Invoices"),
+	// 				message: __("No sales invoices found in this delivery route."),
+	// 				indicator: "yellow"
+	// 			});
+	// 			reject();
+	// 		}
+	// 	},
+	// 	error: function(r) {
+	// 		frappe.msgprint({
+	// 			title: __("Error"),
+	// 			message: __("Failed to fetch invoices. Please try again."),
+	// 			indicator: "red"
+	// 		});
+	// 		reject();
+	// 	}
+	// });
+
+	let invoices = frm.doc.delivery_route_item || [];
+
+	// Create the dialog
+	let dialog = new frappe.ui.Dialog({
+		title: __("Manage Invoice Deliveries"),
+		size: "large",
+		fields: [
+			{
+				fieldtype: "HTML",
+				fieldname: "invoice_list",
+				options: generate_invoice_list_html(invoices),
+			},
+		],
+		primary_action_label: __("Apply Actions"),
+		primary_action: function () {
+			apply_invoice_actions(dialog, invoices, frm, resolve, reject);
+		},
+		secondary_action_label: __("Cancel"),
+		secondary_action: function () {
+			dialog.hide();
+			reject();
+		},
+	});
+
+	// Show dialog first
+	dialog.show();
+
+	// Add event listeners for action buttons after dialog is shown
+	setup_invoice_action_listeners(dialog, invoices);
+}
+
+// Generate HTML for invoice list
+function generate_invoice_list_html(invoices) {
+	let html = `
+		<div class="invoice-delivery-manager">
+			<style>
+				.invoice-delivery-manager {
+					max-height: 400px;
+					overflow-y: auto;
+				}
+				.invoice-row {
+					border: 1px solid #d1d8dd;
+					margin-bottom: 10px;
+					padding: 15px;
+					border-radius: 6px;
+					background: #f8f9fa;
+				}
+				.invoice-header {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					margin-bottom: 10px;
+				}
+				.invoice-info {
+					flex: 1;
+				}
+				.invoice-actions {
+					display: flex;
+					gap: 8px;
+					align-items: center;
+				}
+				.action-select {
+					padding: 6px 12px;
+					border: 1px solid #ccc;
+					border-radius: 4px;
+					cursor: pointer;
+					font-size: 12px;
+					font-weight: 500;
+					background: white;
+					color: #333;
+					min-width: 100px;
+					outline: none;
+				}
+				.action-select:focus {
+					border-color: #17a2b8;
+					box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.2);
+				}
+				.action-label {
+					font-size: 12px;
+					font-weight: 500;
+					color: #495057;
+					margin-right: 5px;
+				}
+				.invoice-details {
+					display: grid;
+					grid-template-columns: 1fr 1fr 1fr;
+					gap: 10px;
+					font-size: 13px;
+					color: #6c757d;
+				}
+				.invoice-number {
+					font-size: 14px;
+					font-weight: 600;
+					color: #333;
+				}
+				.workflow-badge {
+					display: inline-block;
+					padding: 2px 8px;
+					background: #17a2b8;
+					color: white;
+					border-radius: 12px;
+					font-size: 11px;
+					font-weight: 500;
+					margin-left: 10px;
+				}
+			</style>
+	`;
+
+	invoices.forEach((invoice, index) => {
+		html += `
+			<div class="invoice-row" data-invoice="${invoice.invoice_number}">
+				<div class="invoice-header">
+					<div class="invoice-info">
+						<span class="invoice-number">${invoice.invoice_number}</span>
+					</div>
+					<div class="invoice-actions">
+						<span class="action-label">Action:</span>
+						<select class="action-select" data-invoice="${invoice.invoice_number}">
+							<option value="Deliver" selected>Deliver</option>
+							<option value="Return">Return</option>
+							<option value="Cancel">Cancel</option>
+						</select>
+					</div>
+				</div>
+				<div class="invoice-details">
+					<div><strong>Customer:</strong> ${invoice.customer_name || invoice.customer}</div>
+					<div><strong>Packages:</strong> ${invoice.number_packed || 0}</div>
+				</div>
+			</div>
+		`;
+	});
+
+	html += `</div>`;
+	return html;
+}
+
+// Setup event listeners for action selects
+function setup_invoice_action_listeners(dialog, invoices) {
+	// Wait for dialog to be fully rendered
+	setTimeout(() => {
+		// Remove any existing event listeners to prevent duplicates
+		dialog.$wrapper.find(".action-select").off("change");
+
+		// Add change event listeners for dropdowns
+		dialog.$wrapper.find(".action-select").on("change", function (e) {
+			let $select = $(this);
+			let invoice_number = $select.attr("data-invoice");
+			let action = $select.val();
+
+			console.log("Action changed:", action, "for invoice:", invoice_number);
+
+			// Store the selected action for this invoice
+			$select.closest(".invoice-row").attr("data-selected-action", action);
+
+			console.log("Action selected:", action, "for invoice:", invoice_number);
+		});
+
+		// Initialize all invoices with default "Deliver" action
+		dialog.$wrapper.find(".invoice-row").each(function () {
+			$(this).attr("data-selected-action", "Deliver");
+		});
+
+		console.log("Event listeners setup complete");
+	}, 200);
+}
+
+// Apply selected actions to invoices
+function apply_invoice_actions(dialog, invoices, frm, resolve, reject) {
+	let actions = [];
+
+	// Collect all selected actions
+	dialog.$wrapper.find(".invoice-row").each(function () {
+		let $row = $(this);
+		let invoice_number = $row.data("invoice");
+		let selected_action = $row.attr("data-selected-action") || "Deliver";
+		console.log("--------", invoice_number, selected_action);
+		actions.push({
+			invoice_number: invoice_number,
+			action: selected_action,
+		});
+	});
+
+
+	if (actions.length === 0) {
+		frappe.msgprint({
+			title: __("No Actions Selected"),
+			message: __("Please select actions for the invoices."),
+			indicator: "yellow",
+		});
+		return;
+	}
+
+	// Apply actions sequentially
+	let completed = 0;
+	let failed = 0;
+
+	function apply_next_action(index) {
+		if (index >= actions.length) {
+			// All actions completed
+			dialog.hide();
+
+			let message = `Successfully processed ${completed} invoices.`;
+			if (failed > 0) {
+				message += ` ${failed} actions failed.`;
+			}
+
+			frappe.msgprint({
+				title: __("Actions Applied"),
+				message: __(message),
+				indicator: completed > 0 ? "green" : "red",
+			});
+
+			if (completed > 0) {
+				resolve();
+			} else {
+				reject();
+			}
+			return;
+		}
+
+		let action_data = actions[index];
+
+		frappe.call({
+			method: "medis.medis.doctype.delivery_route.delivery_route.update_invoice_workflow_action",
+			args: {
+				invoice_number: action_data.invoice_number,
+				action: action_data.action,
+			},
+			callback: function (r) {
+				if (r.message && r.message.status === "success") {
+					completed++;
+				} else {
+					failed++;
+				}
+				apply_next_action(index + 1);
+			},
+			error: function (r) {
+				failed++;
+				apply_next_action(index + 1);
+			},
+		});
+	}
+
+	apply_next_action(0);
 }

@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"ZT98u8E6Oj\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Controller Dashboard</span>\",\"col\":12}},{\"id\":\"LUCan1z5PW\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"n0QhhDFqu3\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Controller Scanning Screen\",\"col\":12}}]",
+ "content": "[{\"id\":\"ZT98u8E6Oj\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Controller Dashboard</span>\",\"col\":12}},{\"id\":\"n0QhhDFqu3\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Controller Scanning Screen\",\"col\":12}}]",
  "creation": "2025-08-27 21:23:38.582363",
  "custom_blocks": [
   {
@@ -17,7 +17,7 @@
  "is_hidden": 0,
  "label": "Controller Dashboard",
  "links": [],
- "modified": "2025-08-28 16:21:07.535308",
+ "modified": "2025-08-31 12:09:50.546248",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Controller Dashboard",

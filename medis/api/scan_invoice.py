@@ -7,15 +7,13 @@ def transition_to_picking(invoice_barcode):
     Move Sales Invoice from 'Ready For Picking' to 'Picking'
     via workflow transition 'Pick Scan'
     """
-
-    print(":::::::::::::::::::::::::")
     if not frappe.db.exists("Sales Invoice", invoice_barcode):
-        return {"ok": False, "msg": "Invoice not found"}
+        return {"ok": False, "msg": f"The invoice {invoice_barcode} not found"}
 
     doc = frappe.get_doc("Sales Invoice", invoice_barcode)
 
     if doc.workflow_state != "Ready For Picking":
-        return {"ok": False, "msg": f"Wrong state: {doc.workflow_state}"}
+        return {"ok": False, "msg": f"The invoice {invoice_barcode} is already in state {doc.workflow_state.upper()}"}
 
     try:
         apply_workflow(doc, "Picking Scan")   # exact action name in workflow

@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"c55po7Z0T8\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Medis Dashboard</span>\",\"col\":12}},{\"id\":\"r91rpJmgPE\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order\",\"col\":3}},{\"id\":\"MDLdjx727r\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"2yEJB6d_S7\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Scan Item\",\"col\":12}}]",
+ "content": "[{\"id\":\"c55po7Z0T8\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Medis Dashboard</span>\",\"col\":12}},{\"id\":\"r91rpJmgPE\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order\",\"col\":3}},{\"id\":\"sKvNl5y7DO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery route\",\"col\":3}},{\"id\":\"MDLdjx727r\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"2yEJB6d_S7\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Scan Item\",\"col\":12}}]",
  "creation": "2025-08-22 15:49:19.515716",
  "custom_blocks": [
   {
@@ -18,7 +18,7 @@
  "is_hidden": 0,
  "label": "Medis Dashboard",
  "links": [],
- "modified": "2025-08-27 19:03:25.230568",
+ "modified": "2025-09-01 11:47:15.977023",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Medis Dashboard",
@@ -35,6 +35,14 @@
    "doc_view": "List",
    "label": "Sales Order",
    "link_to": "Sales Order",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Delivery route",
+   "link_to": "Delivery Route",
    "stats_filter": "[]",
    "type": "DocType"
   },

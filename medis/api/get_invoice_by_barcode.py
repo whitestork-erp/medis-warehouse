@@ -2,20 +2,24 @@
 import frappe
 from frappe.model.workflow import apply_workflow
 
+
 @frappe.whitelist()
 def get_invoice_by_barcode(invoice):
     try:
+        if not frappe.db.exists("Sales Invoice", invoice):
+            return {"ok": False, "doc": None, "msg": f"The invoice {invoice} not found"}
         doc = frappe.get_doc("Sales Invoice", invoice)
-
         delivery_state = doc.workflow_state
+
         if delivery_state == "Picking":
             apply_workflow(doc, "Control Scan")
-            return doc
+            return {"ok": True, "doc": doc}
         if delivery_state == "Controlling":
-            return doc
-        return None
+            return {"ok": True, "doc": doc}
+        return {
+            "ok": False,
+            "msg": f"The invoice {invoice} is already in {delivery_state.upper()} state",
+        }
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "get_invoice_by_barcode")
-        return None
-    # item = frappe.get_doc("Item", doc.item_code)
-    # return {"item_code": item.item_code, "item_name": item.item_name}
+        return {"ok": False, "msg": str(e)}

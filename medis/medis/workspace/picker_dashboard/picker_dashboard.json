@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"52wM5xtWLe\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Picker Dashboard</span>\",\"col\":12}},{\"id\":\"XJ4Rzc5VKn\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Ready For Picking\",\"col\":12}},{\"id\":\"36kiTRqdll\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"kijIbpAxGF\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Scan Item\",\"col\":12}}]",
+ "content": "[{\"id\":\"52wM5xtWLe\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Picker Dashboard</span>\",\"col\":12}},{\"id\":\"kijIbpAxGF\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Scan Item\",\"col\":12}},{\"id\":\"36kiTRqdll\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"XJ4Rzc5VKn\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Ready For Picking\",\"col\":12}}]",
  "creation": "2025-08-27 20:48:03.631645",
  "custom_blocks": [
   {
@@ -17,7 +17,7 @@
  "is_hidden": 0,
  "label": "Picker Dashboard",
  "links": [],
- "modified": "2025-08-27 21:11:21.565415",
+ "modified": "2025-08-31 12:08:04.718913",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Picker Dashboard",
