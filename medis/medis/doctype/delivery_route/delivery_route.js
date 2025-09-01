@@ -7,7 +7,7 @@ frappe.ui.form.on("Delivery Route Item", {
 				.filter(Boolean);
 			return {
 				filters: {
-					workflow_state: "Packed",
+					workflow_state: ["in", ["Packed","Returned"]],
 					name: ["not in", selected_invoices],
 				},
 			};
@@ -24,7 +24,7 @@ frappe.ui.form.on("Delivery Route", {
 		frm.set_query("invoice_number", "delivery_route_item", function (doc, cdt, cdn) {
 			return {
 				filters: {
-					workflow_state: "Packed",
+					workflow_state: ["in", ["Packed","Returned"]],
 				},
 			};
 		});
@@ -80,7 +80,7 @@ frappe.ui.form.on("Delivery Route", {
 					},
 					() => reject()
 				);
-			} else if (frm.selected_workflow_action == "Deliver") {
+			} else if (frm.selected_workflow_action == "End") {
 				// Show delivery management dialog
 				show_delivery_management_dialog(frm, resolve, reject);
 			} else {
@@ -282,7 +282,7 @@ function generate_invoice_list_html(invoices) {
 					<div class="invoice-actions">
 						<span class="action-label">Action:</span>
 						<select class="action-select" data-invoice="${invoice.invoice_number}">
-							<option value="Deliver" selected>Deliver</option>
+							<option value="End" selected>End</option>
 							<option value="Return">Return</option>
 							<option value="Cancel">Cancel</option>
 						</select>
@@ -321,9 +321,9 @@ function setup_invoice_action_listeners(dialog, invoices) {
 			console.log("Action selected:", action, "for invoice:", invoice_number);
 		});
 
-		// Initialize all invoices with default "Deliver" action
+		// Initialize all invoices with default "End" action
 		dialog.$wrapper.find(".invoice-row").each(function () {
-			$(this).attr("data-selected-action", "Deliver");
+			$(this).attr("data-selected-action", "End");
 		});
 
 		console.log("Event listeners setup complete");
@@ -338,14 +338,13 @@ function apply_invoice_actions(dialog, invoices, frm, resolve, reject) {
 	dialog.$wrapper.find(".invoice-row").each(function () {
 		let $row = $(this);
 		let invoice_number = $row.data("invoice");
-		let selected_action = $row.attr("data-selected-action") || "Deliver";
+		let selected_action = $row.attr("data-selected-action") || "End";
 		console.log("--------", invoice_number, selected_action);
 		actions.push({
 			invoice_number: invoice_number,
 			action: selected_action,
 		});
 	});
-
 
 	if (actions.length === 0) {
 		frappe.msgprint({

@@ -66,7 +66,6 @@ def get_delivery_route_invoices(delivery_route_name):
     try:
         # Get the delivery route document
         delivery_route = frappe.get_doc("Delivery Route", delivery_route_name)
-        print("-----delivery_route-----",delivery_route)
         invoices = []
 
         for item in delivery_route.get("delivery_route_item") or []:
@@ -110,8 +109,6 @@ def update_invoice_workflow_action(invoice_number, action):
     try:
         # Get the sales invoice document
         invoice = frappe.get_doc("Sales Invoice", invoice_number)
-        print("--invoice------", invoice)
-        print("----action----", action)
         # Apply the workflow action
         apply_workflow(invoice, action)
         invoice.reload()
@@ -135,22 +132,19 @@ def update_invoice_states(doc, method):
         return
 
 
-    invoices = doc.get("delivery_route_item") or []
+    # invoices = doc.get("delivery_route_item") or []
     action= ""
-    print("----------doc.workflow_state----------",doc.workflow_state)
     if doc.workflow_state == "Ready For Delivery1":
         action = "Assign Delivery Route"
     elif doc.workflow_state == "Out For Delivery":
         action = "Assign Delivery Route"
     if not action:
         return
-    print("-----------action",action)
     for item in doc.get("delivery_route_item") or []:
         inv = item.invoice_number
         if not inv:
             continue
         invoice = frappe.get_doc("Sales Invoice", inv)
-        print("INVOICE.         _-------", invoice.workflow_state)
         apply_workflow(invoice, action)
         invoice.reload()
     #     try:
