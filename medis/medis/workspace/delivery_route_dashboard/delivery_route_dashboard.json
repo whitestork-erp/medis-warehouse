@@ -1,0 +1,48 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"XxQPy1HxUx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Delivery Route Dashboard</span>\",\"col\":12}},{\"id\":\"_CNfR5a2pk\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Delivery Route\",\"col\":12}},{\"id\":\"MmUO906-_Q\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Delivery Route \",\"col\":12}}]",
+ "creation": "2025-09-02 11:56:17.550140",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "heart",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Delivery Route Dashboard",
+ "links": [],
+ "modified": "2025-09-02 15:14:05.127423",
+ "modified_by": "Administrator",
+ "module": "Medis",
+ "name": "Delivery Route Dashboard",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Delivery Route",
+   "label": "Delivery Route ",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [
+  {
+   "role": "Delivery Route Manager"
+  }
+ ],
+ "sequence_id": 43.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "New",
+   "label": "Create New Delivery Route",
+   "link_to": "Delivery Route",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Delivery Route Dashboard"
+}
