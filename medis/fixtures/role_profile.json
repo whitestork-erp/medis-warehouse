@@ -1,0 +1,47 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2025-09-02 10:30:50.307615",
+  "name": "Medis - Controller",
+  "role_profile": "Medis - Controller",
+  "roles": [
+   {
+    "parent": "Medis - Controller",
+    "parentfield": "roles",
+    "parenttype": "Role Profile",
+    "role": "Controller"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2025-09-02 11:45:00.413247",
+  "name": "Medis - Delivery Route Manager",
+  "role_profile": "Medis - Delivery Route Manager",
+  "roles": [
+   {
+    "parent": "Medis - Delivery Route Manager",
+    "parentfield": "roles",
+    "parenttype": "Role Profile",
+    "role": "Delivery Route Manager"
+   }
+  ]
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Role Profile",
+  "modified": "2025-09-02 14:30:14.174307",
+  "name": "Picker Profile",
+  "role_profile": "Medis - Picker Profile",
+  "roles": [
+   {
+    "parent": "Picker Profile",
+    "parentfield": "roles",
+    "parenttype": "Role Profile",
+    "role": "Picker"
+   }
+  ]
+ }
+]

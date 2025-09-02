@@ -169,3 +169,29 @@ def update_invoice_states(doc, method):
     #             title="Delivery Route Invoice Update Error",
     #             message=f"Failed to update invoice {inv}: {e}"
     #         )
+
+@frappe.whitelist()
+def return_sales_invoice_to_packed(frm):
+    """Return the last sales invoice in the delivery route to 'Packed' state."""
+    print("=======frm=========",frm)
+    items = frm.doc.delivery_route_item or []
+    print("items",items)
+    if not items:
+        return
+
+    last_item = items[-1]
+    if not last_item.invoice_number:
+        return
+
+    try:
+        invoice = frappe.get_doc("Sales Invoice", last_item.invoice_number)
+        if invoice.workflow_state != "Packed":
+            apply_workflow(invoice, "Return to Packed")
+            invoice.reload()
+            frappe.msgprint(f"Invoice {last_item.invoice_number} returned to 'Packed' state.")
+    except Exception as e:
+        frappe.log_error(
+			title="Return Invoice to Packed Error",
+			message=f"Failed to return invoice {last_item.invoice_number} to 'Packed': {str(e)}"
+		)
+        frappe.throw(f"Failed to return invoice to 'Packed': {str(e)}")

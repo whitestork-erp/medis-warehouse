@@ -17,7 +17,7 @@
  "is_hidden": 0,
  "label": "Controller Dashboard",
  "links": [],
- "modified": "2025-08-31 12:09:50.546248",
+ "modified": "2025-09-02 10:51:33.048057",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Controller Dashboard",
@@ -26,7 +26,11 @@
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
+ "roles": [
+  {
+   "role": "Controller"
+  }
+ ],
  "sequence_id": 42.0,
  "shortcuts": [],
  "title": "Controller Dashboard"

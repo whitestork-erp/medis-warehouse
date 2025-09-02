@@ -1,5 +1,6 @@
 frappe.ui.form.on("Delivery Route Item", {
 	invoice_number: function (frm) {
+		update_summary(frm);
 		frm.set_query("invoice_number", "delivery_route_item", function (doc, cdt, cdn) {
 			let selected_invoices = (doc.delivery_route_item || [])
 				.filter((row) => row.name !== cdn)
@@ -7,7 +8,7 @@ frappe.ui.form.on("Delivery Route Item", {
 				.filter(Boolean);
 			return {
 				filters: {
-					workflow_state: ["in", ["Packed","Returned"]],
+					workflow_state: ["in", ["Packed", "Returned"]],
 					name: ["not in", selected_invoices],
 				},
 			};
@@ -17,6 +18,38 @@ frappe.ui.form.on("Delivery Route Item", {
 	number_packed: function (frm, cdt, cdn) {
 		update_summary(frm);
 	},
+	delivery_route_item_add: function (frm) {
+		update_summary(frm);
+	},
+	delivery_route_item_remove: function (frm) {
+		update_summary(frm);
+		// frappe.call({
+		// 	method: "medis.medis.doctype.delivery_route.delivery_route.return_sales_invoice_to_packed",
+		// 	args: {
+		// 		frm: frm,
+		// 	},
+		// 	callback: function (r) {
+		// 		if (r.message) {
+		// 			// frappe.msgprint({
+		// 			// 	title: __("Success"),
+		// 			// 	message: __("Sales invoice returned to 'Packed' state successfully."),
+		// 			// 	indicator: "green",
+		// 			// });
+		// 		}
+		// 	},
+		// 	error: function (r) {
+		// 		frappe.msgprint({
+		// 			title: __("Error"),
+		// 			message: __("Failed to return sales invoice to 'Packed': ") + r.message,
+		// 			indicator: "red",
+		// 		});
+		// 	},
+		// });
+		// returnSalesInvoiceToPacked(frm);
+	},
+	delivery_route_item_on_form_rendered: function (frm) {
+		update_summary(frm);
+	},
 });
 
 frappe.ui.form.on("Delivery Route", {
@@ -24,7 +57,7 @@ frappe.ui.form.on("Delivery Route", {
 		frm.set_query("invoice_number", "delivery_route_item", function (doc, cdt, cdn) {
 			return {
 				filters: {
-					workflow_state: ["in", ["Packed","Returned"]],
+					workflow_state: ["in", ["Packed", "Returned"]],
 				},
 			};
 		});
@@ -94,9 +127,8 @@ frappe.ui.form.on("Delivery Route", {
 // Calculate summary
 function update_summary(frm) {
 	const items = frm.doc.delivery_route_item || [];
-
+	if (!items[items.length - 1] || !items[items.length - 1].customer) return;
 	frm.set_value("total_invoices", items.length);
-
 	let unique_customers = [...new Set(items.map((r) => r.customer))].length;
 	frm.set_value("total_customers", unique_customers);
 
@@ -104,66 +136,34 @@ function update_summary(frm) {
 	frm.set_value("total_packages", total_packages);
 }
 
+function returnSalesInvoiceToPacked(frm) {
+	console.log("--------frnnnnnn", frm);
+	frappe.call({
+		method: "medis.medis.doctype.delivery_route.delivery_route.return_sales_invoice_to_packed",
+		args: {
+			frm: frm,
+		},
+		callback: function (r) {
+			if (r.message) {
+				// frappe.msgprint({
+				// 	title: __("Success"),
+				// 	message: __("Sales invoice returned to 'Packed' state successfully."),
+				// 	indicator: "green",
+				// });
+			}
+		},
+		error: function (r) {
+			frappe.msgprint({
+				title: __("Error"),
+				message: __("Failed to return sales invoice to 'Packed': ") + r.message,
+				indicator: "red",
+			});
+		},
+	});
+}
+
 // Show delivery management dialog
 function show_delivery_management_dialog(frm, resolve, reject) {
-	console.log("-----------frm-----------", frm);
-	// Get all invoices for this delivery route
-	// frappe.call({
-	// 	method: "medis.medis.doctype.delivery_route.delivery_route.get_delivery_route_invoices",
-	// 	args: {
-	// 		delivery_route_name: frm.doc.name
-	// 	},
-	// 	callback: function(r) {
-	// 		if (r.message && r.message.length > 0) {
-	// 			let invoices = r.message;
-
-	// 			// Create the dialog
-	// 			let dialog = new frappe.ui.Dialog({
-	// 				title: __("Manage Invoice Deliveries"),
-	// 				size: "large",
-	// 				fields: [
-	// 					{
-	// 						fieldtype: "HTML",
-	// 						fieldname: "invoice_list",
-	// 						options: generate_invoice_list_html(invoices)
-	// 					}
-	// 				],
-	// 				primary_action_label: __("Apply Actions"),
-	// 				primary_action: function() {
-	// 					apply_invoice_actions(dialog, invoices, frm, resolve, reject);
-	// 				},
-	// 				secondary_action_label: __("Cancel"),
-	// 				secondary_action: function() {
-	// 					dialog.hide();
-	// 					reject();
-	// 				}
-	// 			});
-
-	// 			// Show dialog first
-	// 			dialog.show();
-
-	// 			// Add event listeners for action buttons after dialog is shown
-	// 			setup_invoice_action_listeners(dialog, invoices);
-
-	// 		} else {
-	// 			frappe.msgprint({
-	// 				title: __("No Invoices"),
-	// 				message: __("No sales invoices found in this delivery route."),
-	// 				indicator: "yellow"
-	// 			});
-	// 			reject();
-	// 		}
-	// 	},
-	// 	error: function(r) {
-	// 		frappe.msgprint({
-	// 			title: __("Error"),
-	// 			message: __("Failed to fetch invoices. Please try again."),
-	// 			indicator: "red"
-	// 		});
-	// 		reject();
-	// 	}
-	// });
-
 	let invoices = frm.doc.delivery_route_item || [];
 
 	// Create the dialog
@@ -282,7 +282,7 @@ function generate_invoice_list_html(invoices) {
 					<div class="invoice-actions">
 						<span class="action-label">Action:</span>
 						<select class="action-select" data-invoice="${invoice.invoice_number}">
-							<option value="End" selected>End</option>
+							<option value="Deliver" selected>Deliver</option>
 							<option value="Return">Return</option>
 							<option value="Cancel">Cancel</option>
 						</select>
@@ -313,12 +313,8 @@ function setup_invoice_action_listeners(dialog, invoices) {
 			let invoice_number = $select.attr("data-invoice");
 			let action = $select.val();
 
-			console.log("Action changed:", action, "for invoice:", invoice_number);
-
 			// Store the selected action for this invoice
 			$select.closest(".invoice-row").attr("data-selected-action", action);
-
-			console.log("Action selected:", action, "for invoice:", invoice_number);
 		});
 
 		// Initialize all invoices with default "End" action
@@ -338,8 +334,9 @@ function apply_invoice_actions(dialog, invoices, frm, resolve, reject) {
 	dialog.$wrapper.find(".invoice-row").each(function () {
 		let $row = $(this);
 		let invoice_number = $row.data("invoice");
-		let selected_action = $row.attr("data-selected-action") || "End";
-		console.log("--------", invoice_number, selected_action);
+		let selected_action = $row.attr("data-selected-action") || "Deliver";
+		console.log("---invoice_number-----", invoice_number);
+		console.log("---selected_action-----", selected_action);
 		actions.push({
 			invoice_number: invoice_number,
 			action: selected_action,

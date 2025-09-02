@@ -36,7 +36,11 @@ fixtures = [
     },
     {
         "dt": "Role",
-        "filters": [["name", "in", ["Medis - Salesman"]]],
+        "filters": [["name", "in", ["Delivery Route Manager","Controller","Picker","Sales Manager"]]],
+    },
+    {
+        "dt": "Role Profile",
+        "filters": [["name", "in", ["Medis - Delivery Route Manager","Picker Profile","Medis - Controller"]]],
     },
     {
         "dt": "Workflow",
