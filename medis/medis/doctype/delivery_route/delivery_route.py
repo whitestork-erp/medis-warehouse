@@ -134,10 +134,10 @@ def update_invoice_states(doc, method):
 
     # invoices = doc.get("delivery_route_item") or []
     action= ""
-    if doc.workflow_state == "Ready For Delivery1":
+    if doc.workflow_state == "Ready For Delivery":
         action = "Assign Delivery Route"
-    elif doc.workflow_state == "Out For Delivery":
-        action = "Assign Delivery Route"
+    # elif doc.workflow_state == "Out For Delivery":
+    #     action = "Assign Delivery Route"
     if not action:
         return
     for item in doc.get("delivery_route_item") or []:

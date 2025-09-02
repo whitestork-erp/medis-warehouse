@@ -170,9 +170,9 @@ doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 
 doc_events = {
     "Delivery Route": {
-        "on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
+        # "on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
         "after_insert": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-        "on_update_after_submit": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states"
+        # "on_update_after_submit": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states"
         # "before_print":"medis.medis.doctype.delivery_route.delivery_route.before_print",
         # "on_print": "medis.medis.doctype.delivery_route.delivery_route.on_print",
         # "on_print_pdf": "medis.medis.doctype.delivery_route.delivery_route.on_print_pdf",

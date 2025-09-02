@@ -16,7 +16,7 @@ def transition_to_picking(invoice_barcode):
         return {"ok": False, "msg": f"The invoice {invoice_barcode} is already in state {doc.workflow_state.upper()}"}
 
     try:
-        apply_workflow(doc, "Picking Scan")   # exact action name in workflow
+        apply_workflow(doc, "Picking Scan")
         frappe.db.commit()
         return {"ok": True, "msg": f"Moved to {doc.workflow_state}"}
     except Exception as e:
