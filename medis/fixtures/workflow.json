@@ -182,7 +182,7 @@
   "doctype": "Workflow",
   "document_type": "Sales Invoice",
   "is_active": 1,
-  "modified": "2025-09-02 12:46:05.766559",
+  "modified": "2025-09-03 09:26:34.122391",
   "name": "Sales Invoice Workflow",
   "override_status": 1,
   "send_email_alert": 0,
@@ -508,16 +508,29 @@
     "workflow_builder_id": null
    },
    {
-    "action": "Assign Delivery Route",
+    "action": "Prepare For Delivery",
     "allow_self_approval": 1,
     "allowed": "All",
     "condition": null,
-    "next_state": "Out For Delivery",
+    "next_state": "Ready For Delivery",
     "parent": "Sales Invoice Workflow",
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
     "state": "Packed",
+    "workflow_builder_id": null
+   },
+   {
+    "action": "Prepare For Delivery",
+    "allow_self_approval": 1,
+    "allowed": "All",
+    "condition": null,
+    "next_state": "Ready For Delivery",
+    "parent": "Sales Invoice Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Returned",
     "workflow_builder_id": null
    },
    {
@@ -530,7 +543,20 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "send_email_to_creator": 0,
-    "state": "Returned",
+    "state": "Ready For Delivery",
+    "workflow_builder_id": null
+   },
+   {
+    "action": "Repack",
+    "allow_self_approval": 1,
+    "allowed": "All",
+    "condition": null,
+    "next_state": "Packed",
+    "parent": "Sales Invoice Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Ready For Delivery",
     "workflow_builder_id": null
    },
    {
@@ -560,11 +586,24 @@
     "workflow_builder_id": null
    },
    {
-    "action": "Cancel",
+    "action": "Repack",
     "allow_self_approval": 1,
     "allowed": "All",
     "condition": null,
     "next_state": "Packed",
+    "parent": "Sales Invoice Workflow",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "send_email_to_creator": 0,
+    "state": "Out For Delivery",
+    "workflow_builder_id": null
+   },
+   {
+    "action": "Cancel",
+    "allow_self_approval": 1,
+    "allowed": "All",
+    "condition": null,
+    "next_state": "Canceled",
     "parent": "Sales Invoice Workflow",
     "parentfield": "transitions",
     "parenttype": "Workflow",
