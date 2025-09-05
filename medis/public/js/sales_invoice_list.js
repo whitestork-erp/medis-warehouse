@@ -86,5 +86,35 @@ frappe.listview_settings['Sales Invoice'] = {
                 }
             });
         });
+    },
+	get_indicator: function (doc) {
+
+        // If document is Submitted (docstatus = 1), show the business state
+        if (doc.docstatus === 1) {
+            let color_map = {
+                "Unpaid": "orange",
+                "Overdue": "red",
+                "Partly Paid": "yellow",
+                "Paid": "green",
+                "Return": "purple",
+                "Credit Note Issued": "blue"
+            };
+
+
+
+            let color = color_map[doc.status] || "blue";
+            return [__(doc.status), color, "status,=," + doc.status];
+        }
+
+        // For Draft (0) or Cancelled (2), show docstatus value instead
+        if (doc.docstatus === 0) {
+            return ["Draft", "gray", "docstatus,=,0"];
+        }
+        if (doc.docstatus === 2) {
+            return ["Cancelled", "red", "docstatus,=,2"];
+        }
+
+        // fallback if nothing matches
+        return [__(doc.status), "blue", "status,=," + doc.status];
     }
 };

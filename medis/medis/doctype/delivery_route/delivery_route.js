@@ -23,29 +23,8 @@ frappe.ui.form.on("Delivery Route Item", {
 	},
 	delivery_route_item_remove: function (frm) {
 		update_summary(frm);
-		// frappe.call({
-		// 	method: "medis.medis.doctype.delivery_route.delivery_route.return_sales_invoice_to_packed",
-		// 	args: {
-		// 		frm: frm,
-		// 	},
-		// 	callback: function (r) {
-		// 		if (r.message) {
-		// 			// frappe.msgprint({
-		// 			// 	title: __("Success"),
-		// 			// 	message: __("Sales invoice returned to 'Packed' state successfully."),
-		// 			// 	indicator: "green",
-		// 			// });
-		// 		}
-		// 	},
-		// 	error: function (r) {
-		// 		frappe.msgprint({
-		// 			title: __("Error"),
-		// 			message: __("Failed to return sales invoice to 'Packed': ") + r.message,
-		// 			indicator: "red",
-		// 		});
-		// 	},
-		// });
-		// returnSalesInvoiceToPacked(frm);
+		// Show a message to user about automatic workflow management
+
 	},
 	delivery_route_item_on_form_rendered: function (frm) {
 		update_summary(frm);
@@ -75,7 +54,7 @@ frappe.ui.form.on("Delivery Route", {
 						try {
 							// Call backend to cancel all sales invoices for this delivery route
 							frappe.call({
-								method: "medis.medis.doctype.delivery_route.delivery_route.cancel_delivery_route_invoices",
+								method: "medis.medis.doctype.delivery_route.delivery_route.repack_delivery_route_invoices",
 								args: {
 									delivery_route_name: frm.doc.name,
 								},
@@ -136,31 +115,7 @@ function update_summary(frm) {
 	frm.set_value("total_packages", total_packages);
 }
 
-function returnSalesInvoiceToPacked(frm) {
-	console.log("--------frnnnnnn", frm);
-	frappe.call({
-		method: "medis.medis.doctype.delivery_route.delivery_route.return_sales_invoice_to_packed",
-		args: {
-			frm: frm,
-		},
-		callback: function (r) {
-			if (r.message) {
-				// frappe.msgprint({
-				// 	title: __("Success"),
-				// 	message: __("Sales invoice returned to 'Packed' state successfully."),
-				// 	indicator: "green",
-				// });
-			}
-		},
-		error: function (r) {
-			frappe.msgprint({
-				title: __("Error"),
-				message: __("Failed to return sales invoice to 'Packed': ") + r.message,
-				indicator: "red",
-			});
-		},
-	});
-}
+
 
 // Show delivery management dialog
 function show_delivery_management_dialog(frm, resolve, reject) {
@@ -282,9 +237,9 @@ function generate_invoice_list_html(invoices) {
 					<div class="invoice-actions">
 						<span class="action-label">Action:</span>
 						<select class="action-select" data-invoice="${invoice.invoice_number}">
-							<option value="Deliver" selected>Deliver</option>
-							<option value="Return">Return</option>
-							<option value="Cancel">Cancel</option>
+							<option value="Deliver" selected>Delivered</option>
+							<option value="Return">Returned</option>
+							<option value="Cancel">Canceled</option>
 						</select>
 					</div>
 				</div>
@@ -304,20 +259,16 @@ function generate_invoice_list_html(invoices) {
 function setup_invoice_action_listeners(dialog, invoices) {
 	// Wait for dialog to be fully rendered
 	setTimeout(() => {
-		// Remove any existing event listeners to prevent duplicates
 		dialog.$wrapper.find(".action-select").off("change");
 
-		// Add change event listeners for dropdowns
 		dialog.$wrapper.find(".action-select").on("change", function (e) {
 			let $select = $(this);
 			let invoice_number = $select.attr("data-invoice");
 			let action = $select.val();
 
-			// Store the selected action for this invoice
 			$select.closest(".invoice-row").attr("data-selected-action", action);
 		});
 
-		// Initialize all invoices with default "End" action
 		dialog.$wrapper.find(".invoice-row").each(function () {
 			$(this).attr("data-selected-action", "End");
 		});
@@ -326,11 +277,9 @@ function setup_invoice_action_listeners(dialog, invoices) {
 	}, 200);
 }
 
-// Apply selected actions to invoices
 function apply_invoice_actions(dialog, invoices, frm, resolve, reject) {
 	let actions = [];
 
-	// Collect all selected actions
 	dialog.$wrapper.find(".invoice-row").each(function () {
 		let $row = $(this);
 		let invoice_number = $row.data("invoice");
