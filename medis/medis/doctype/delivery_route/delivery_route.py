@@ -4,13 +4,41 @@
 import frappe
 from frappe.model.document import Document
 from frappe.workflow.doctype.workflow_action.workflow_action import apply_workflow
+import json
 
 class DeliveryRoute(Document):
-	pass
 
+	def before_save(self):
+		if(self.get("workflow_state") != "Ready For Delivery"): return
+		# 1. Get the current list of child row names
+		# current_rows = {row.name for row in self.delivery_route_item}          # rows now on the form
+		current_items = {row.invoice_number for row in self.delivery_route_item if row.invoice_number}
+
+		# 2. Get the list that was stored at the previous save
+		try:
+			previous_items = set(json.loads(self.get("_last_child_rows") or "[]"))
+		except Exception:
+			previous_items = set()
+
+		# 3. Save the current list for the *next* save
+		self._last_child_rows = json.dumps(list(current_items))
+
+		# 4. Rows that have just been ADDED
+		linked = current_items - previous_items
+		for child_name in linked:
+			child_doc = frappe.get_doc("Sales Invoice", child_name)
+			if child_doc.workflow_state != "Ready For Delivery":          # change to your state
+				apply_workflow(child_doc, "Prepare For Delivery")             # transition name that moves → "Linked"
+
+		# 5. Rows that have just been REMOVED
+		unlinked = previous_items - current_items
+		for child_name in unlinked:
+			child_doc = frappe.get_doc("Sales Invoice", child_name)
+			if child_doc.workflow_state != "Packed":
+				apply_workflow(child_doc, "Repack")
 @frappe.whitelist()
-def cancel_delivery_route_invoices(delivery_route_name):
-    """Cancel all sales invoices associated with the delivery route."""
+def repack_delivery_route_invoices(delivery_route_name):
+    """Repack all sales invoices associated with the delivery route."""
     try:
         # Get the delivery route document
         delivery_route = frappe.get_doc("Delivery Route", delivery_route_name)
@@ -27,24 +55,24 @@ def cancel_delivery_route_invoices(delivery_route_name):
                 # Get the sales invoice document
                 invoice = frappe.get_doc("Sales Invoice", item.invoice_number)
 
-                # Check if invoice is not already cancelled
-                if invoice.workflow_state != "Canceled":
-                    # Apply cancel workflow action
-                    apply_workflow(invoice, "Cancel")
+                # Check if invoice is not already packed
+                if invoice.workflow_state != "Packed":
+                    # Apply repack workflow action
+                    apply_workflow(invoice, "Repack")
                     invoice.reload()
                     cancelled_invoices.append(item.invoice_number)
 
             except Exception as e:
                 frappe.log_error(
-                    title="Failed to Cancel Sales Invoice",
-                    message=f"Failed to cancel invoice {item.invoice_number}: {str(e)}"
+                    title="Failed to Repack Sales Invoice",
+                    message=f"Failed to repack invoice {item.invoice_number}: {str(e)}"
                 )
                 failed_invoices.append(item.invoice_number)
 
         # Prepare response message
-        message = f"Successfully cancelled {len(cancelled_invoices)} sales invoices."
+        message = f"Successfully repacked {len(cancelled_invoices)} sales invoices."
         if failed_invoices:
-            message += f" Failed to cancel {len(failed_invoices)} invoices: {', '.join(failed_invoices)}"
+            message += f" Failed to repack {len(failed_invoices)} invoices: {', '.join(failed_invoices)}"
 
         return {
             "status": "success",
@@ -135,9 +163,9 @@ def update_invoice_states(doc, method):
     # invoices = doc.get("delivery_route_item") or []
     action= ""
     if doc.workflow_state == "Ready For Delivery":
+        action = "Prepare For Delivery"
+    elif doc.workflow_state == "Out For Delivery":
         action = "Assign Delivery Route"
-    # elif doc.workflow_state == "Out For Delivery":
-    #     action = "Assign Delivery Route"
     if not action:
         return
     for item in doc.get("delivery_route_item") or []:

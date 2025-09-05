@@ -39,15 +39,6 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-21 10:22:26.489637",
-  "name": "Submit",
-  "style": "",
-  "workflow_state_name": "Submit"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
   "modified": "2025-08-21 10:22:26.492488",
   "name": "Reviewed",
   "style": "",
@@ -70,6 +61,15 @@
   "name": "Approved",
   "style": "Success",
   "workflow_state_name": "Approved"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-21 10:22:26.489637",
+  "name": "Submit",
+  "style": "",
+  "workflow_state_name": "Submit"
  },
  {
   "docstatus": 0,
@@ -101,38 +101,11 @@
  {
   "docstatus": 0,
   "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-29 14:59:05.783317",
-  "name": "Delivered",
-  "style": "Success",
-  "workflow_state_name": "Delivered"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
   "icon": "question-sign",
   "modified": "2025-08-29 14:56:51.001934",
   "name": "Pending",
   "style": "Inverse",
   "workflow_state_name": "Pending"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-29 14:58:18.548642",
-  "name": "Ready For Delivery",
-  "style": "Success",
-  "workflow_state_name": "Ready For Delivery"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-29 14:59:34.249657",
-  "name": "Returned",
-  "style": "Danger",
-  "workflow_state_name": "Returned"
  },
  {
   "docstatus": 0,
@@ -147,10 +120,28 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-29 14:58:04.132823",
-  "name": "Packed",
+  "modified": "2025-08-29 14:58:18.548642",
+  "name": "Ready For Delivery",
   "style": "Success",
-  "workflow_state_name": "Packed"
+  "workflow_state_name": "Ready For Delivery"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-29 14:59:05.783317",
+  "name": "Delivered",
+  "style": "Success",
+  "workflow_state_name": "Delivered"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-29 14:59:34.249657",
+  "name": "Returned",
+  "style": "Danger",
+  "workflow_state_name": "Returned"
  },
  {
   "docstatus": 0,
@@ -160,6 +151,15 @@
   "name": "Ready For Picking",
   "style": "Warning",
   "workflow_state_name": "Ready For Picking"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-29 14:58:04.132823",
+  "name": "Packed",
+  "style": "Success",
+  "workflow_state_name": "Packed"
  },
  {
   "docstatus": 0,
