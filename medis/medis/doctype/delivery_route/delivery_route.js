@@ -15,18 +15,10 @@ frappe.ui.form.on("Delivery Route Item", {
 		});
 		frm.refresh_field("delivery_route_item");
 	},
-	number_packed: function (frm, cdt, cdn) {
-		update_summary(frm);
-	},
 	delivery_route_item_add: function (frm) {
 		update_summary(frm);
 	},
 	delivery_route_item_remove: function (frm) {
-		update_summary(frm);
-		// Show a message to user about automatic workflow management
-
-	},
-	delivery_route_item_on_form_rendered: function (frm) {
 		update_summary(frm);
 	},
 });
@@ -42,8 +34,6 @@ frappe.ui.form.on("Delivery Route", {
 		});
 	},
 	before_workflow_action: async (frm, doc, ac) => {
-		console.log("Work Flow Triggered", frm.selected_workflow_action);
-
 		let promise = new Promise((resolve, reject) => {
 			frappe.dom.unfreeze();
 
@@ -52,7 +42,6 @@ frappe.ui.form.on("Delivery Route", {
 					"<b>Are you sure you want to cancel this delivery route?</b><br>This will also cancel all associated sales invoices.",
 					async () => {
 						try {
-							// Call backend to cancel all sales invoices for this delivery route
 							frappe.call({
 								method: "medis.medis.doctype.delivery_route.delivery_route.repack_delivery_route_invoices",
 								args: {
@@ -93,7 +82,6 @@ frappe.ui.form.on("Delivery Route", {
 					() => reject()
 				);
 			} else if (frm.selected_workflow_action == "End") {
-				// Show delivery management dialog
 				show_delivery_management_dialog(frm, resolve, reject);
 			} else {
 				resolve();
@@ -103,10 +91,14 @@ frappe.ui.form.on("Delivery Route", {
 	},
 });
 
-// Calculate summary
 function update_summary(frm) {
 	const items = frm.doc.delivery_route_item || [];
-	if (!items[items.length - 1] || !items[items.length - 1].customer) return;
+	if (!items[items.length - 1] || !items[items.length - 1].customer) {
+		frm.set_value("total_customers", 0);
+		frm.set_value("total_invoices", 0);
+		frm.set_value("total_packages", 0);
+		return;
+	}
 	frm.set_value("total_invoices", items.length);
 	let unique_customers = [...new Set(items.map((r) => r.customer))].length;
 	frm.set_value("total_customers", unique_customers);
@@ -115,13 +107,9 @@ function update_summary(frm) {
 	frm.set_value("total_packages", total_packages);
 }
 
-
-
-// Show delivery management dialog
 function show_delivery_management_dialog(frm, resolve, reject) {
 	let invoices = frm.doc.delivery_route_item || [];
 
-	// Create the dialog
 	let dialog = new frappe.ui.Dialog({
 		title: __("Manage Invoice Deliveries"),
 		size: "large",
@@ -134,7 +122,7 @@ function show_delivery_management_dialog(frm, resolve, reject) {
 		],
 		primary_action_label: __("Apply Actions"),
 		primary_action: function () {
-			apply_invoice_actions(dialog, invoices, frm, resolve, reject);
+			apply_invoice_actions(dialog, resolve, reject);
 		},
 		secondary_action_label: __("Cancel"),
 		secondary_action: function () {
@@ -143,11 +131,97 @@ function show_delivery_management_dialog(frm, resolve, reject) {
 		},
 	});
 
-	// Show dialog first
 	dialog.show();
+	setup_invoice_action_listeners(dialog);
+}
 
-	// Add event listeners for action buttons after dialog is shown
-	setup_invoice_action_listeners(dialog, invoices);
+// Setup event listeners for action selects
+function setup_invoice_action_listeners(dialog) {
+	// Wait for dialog to be fully rendered
+	setTimeout(() => {
+		dialog.$wrapper.find(".action-select").off("change");
+
+		dialog.$wrapper.find(".action-select").on("change", function (e) {
+			let $select = $(this);
+			// let invoice_number = $select.attr("data-invoice");
+			let action = $select.val();
+
+			$select.closest(".invoice-row").attr("data-selected-action", action);
+		});
+
+		dialog.$wrapper.find(".invoice-row").each(function () {
+			$(this).attr("data-selected-action", "End");
+		});
+
+		console.log("Event listeners setup complete");
+	}, 200);
+}
+
+function apply_invoice_actions(dialog, resolve, reject) {
+	let actions = [];
+
+	dialog.$wrapper.find(".invoice-row").each(function () {
+		let $row = $(this);
+		let invoice_number = $row.data("invoice");
+		let selected_action = $row.attr("data-selected-action") || "Deliver";
+		actions.push({
+			invoice_number: invoice_number,
+			action: selected_action,
+		});
+	});
+
+	// Apply actions sequentially
+	let completed = 0;
+	let failed = 0;
+
+	function apply_next_action(index) {
+		if (index >= actions.length) {
+			// All actions completed
+			dialog.hide();
+
+			let message = `Successfully processed ${completed} invoices.`;
+			if (failed > 0) {
+				message += ` ${failed} actions failed.`;
+			}
+
+			frappe.msgprint({
+				title: __("Actions Applied"),
+				message: __(message),
+				indicator: completed > 0 ? "green" : "red",
+			});
+
+			if (completed > 0) {
+				resolve();
+			} else {
+				reject();
+			}
+			return;
+		}
+
+		let action_data = actions[index];
+
+		frappe.call({
+			method: "medis.medis.doctype.delivery_route.delivery_route.update_invoice_workflow_action",
+			args: {
+				invoice_number: action_data.invoice_number,
+				action: action_data.action,
+			},
+			callback: function (r) {
+				if (r.message && r.message.status === "success") {
+					completed++;
+				} else {
+					failed++;
+				}
+				apply_next_action(index + 1);
+			},
+			error: function (r) {
+				failed++;
+				apply_next_action(index + 1);
+			},
+		});
+	}
+
+	apply_next_action(0);
 }
 
 // Generate HTML for invoice list
@@ -244,7 +318,7 @@ function generate_invoice_list_html(invoices) {
 					</div>
 				</div>
 				<div class="invoice-details">
-					<div><strong>Customer:</strong> ${invoice.customer_name || invoice.customer}</div>
+					<div><strong>Customer:</strong> ${invoice.customer}</div>
 					<div><strong>Packages:</strong> ${invoice.number_packed || 0}</div>
 				</div>
 			</div>
@@ -253,104 +327,4 @@ function generate_invoice_list_html(invoices) {
 
 	html += `</div>`;
 	return html;
-}
-
-// Setup event listeners for action selects
-function setup_invoice_action_listeners(dialog, invoices) {
-	// Wait for dialog to be fully rendered
-	setTimeout(() => {
-		dialog.$wrapper.find(".action-select").off("change");
-
-		dialog.$wrapper.find(".action-select").on("change", function (e) {
-			let $select = $(this);
-			let invoice_number = $select.attr("data-invoice");
-			let action = $select.val();
-
-			$select.closest(".invoice-row").attr("data-selected-action", action);
-		});
-
-		dialog.$wrapper.find(".invoice-row").each(function () {
-			$(this).attr("data-selected-action", "End");
-		});
-
-		console.log("Event listeners setup complete");
-	}, 200);
-}
-
-function apply_invoice_actions(dialog, invoices, frm, resolve, reject) {
-	let actions = [];
-
-	dialog.$wrapper.find(".invoice-row").each(function () {
-		let $row = $(this);
-		let invoice_number = $row.data("invoice");
-		let selected_action = $row.attr("data-selected-action") || "Deliver";
-		console.log("---invoice_number-----", invoice_number);
-		console.log("---selected_action-----", selected_action);
-		actions.push({
-			invoice_number: invoice_number,
-			action: selected_action,
-		});
-	});
-
-	if (actions.length === 0) {
-		frappe.msgprint({
-			title: __("No Actions Selected"),
-			message: __("Please select actions for the invoices."),
-			indicator: "yellow",
-		});
-		return;
-	}
-
-	// Apply actions sequentially
-	let completed = 0;
-	let failed = 0;
-
-	function apply_next_action(index) {
-		if (index >= actions.length) {
-			// All actions completed
-			dialog.hide();
-
-			let message = `Successfully processed ${completed} invoices.`;
-			if (failed > 0) {
-				message += ` ${failed} actions failed.`;
-			}
-
-			frappe.msgprint({
-				title: __("Actions Applied"),
-				message: __(message),
-				indicator: completed > 0 ? "green" : "red",
-			});
-
-			if (completed > 0) {
-				resolve();
-			} else {
-				reject();
-			}
-			return;
-		}
-
-		let action_data = actions[index];
-
-		frappe.call({
-			method: "medis.medis.doctype.delivery_route.delivery_route.update_invoice_workflow_action",
-			args: {
-				invoice_number: action_data.invoice_number,
-				action: action_data.action,
-			},
-			callback: function (r) {
-				if (r.message && r.message.status === "success") {
-					completed++;
-				} else {
-					failed++;
-				}
-				apply_next_action(index + 1);
-			},
-			error: function (r) {
-				failed++;
-				apply_next_action(index + 1);
-			},
-		});
-	}
-
-	apply_next_action(0);
 }
