@@ -14,7 +14,7 @@ app_license = "mit"
 add_to_apps_screen = [
     {
         "name": "medis",
-        "logo": "/assets/medis/images/hearth-care-icon.webp",
+        "logo": "/assets/medis/images/health.webp",
         "title": "Medis",
         "route": "/app/medis-dashboard",
         "has_permission": False,
@@ -23,6 +23,12 @@ add_to_apps_screen = [
 
 # Includes in <head>
 # ------------------
+
+website_context = {
+	"favicon": '/assets/medis/images/health.webp',
+	"splash_image": "/assets/medis/images/health.webp"
+}
+
 # hooks.py in your custom app
 # include js, css files in header of desk.html
 # app_include_css = "/assets/medis/css/medis.css"
