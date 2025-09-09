@@ -14,7 +14,7 @@ def generate_barcode(*args, **kwargs):
     buffer = BytesIO()
     options = {
         "module_width": 0.15,   # narrower bars
-        "module_height": 10,    # shorter height
+        "module_height": 5,    # shorter height
         "quiet_zone": 1,        # less margin
         "font_size": 0,         # no text
         "text_distance": 0,

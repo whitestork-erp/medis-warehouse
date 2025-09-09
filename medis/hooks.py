@@ -54,7 +54,8 @@ fixtures = [
     },
     "Workflow State",
     "Workflow Action Master",
-    "Custom HTML Block"
+    "Custom HTML Block",
+    "Print Format"
 ]
 
 
