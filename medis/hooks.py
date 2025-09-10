@@ -175,9 +175,11 @@ doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-
-# }
+doc_events = {
+	"Sales Invoice": {
+		"on_submit": "medis.sales_invoice_split.on_submit_split"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
