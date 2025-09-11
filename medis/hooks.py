@@ -175,9 +175,13 @@ override_doctype_class = {
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-
-# }
+doc_events = {
+    "Sales Invoice": {
+        "validate": "medis.sales_invoice_item_controller.sales_invoice_validate",
+        "before_save": "medis.sales_invoice_item_controller.sales_invoice_before_save",
+        "on_update": "medis.sales_invoice_item_controller.sales_invoice_on_update"
+    }
+}
 
 # Scheduled Tasks
 # ---------------
