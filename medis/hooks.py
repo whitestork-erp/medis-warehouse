@@ -167,9 +167,9 @@ doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Sales Invoice": "medis.overrides.sales_invoice.CustomSalesInvoice"
+}
 
 # Document Events
 # ---------------
