@@ -9,9 +9,8 @@ from frappe.model.workflow import apply_workflow
 
 class CustomSalesInvoice(SalesInvoice):
 
-    def on_submit(self):
+    def before_submit(self):
         if not self._should_split_invoice():
-            super().on_submit()
             return
 
         try:
@@ -24,67 +23,144 @@ class CustomSalesInvoice(SalesInvoice):
         finally:
             frappe.flags._si_split_running = False
 
+    def on_submit(self):
+        # Call parent on_submit first
+        super().on_submit()
+
+        # Add comments for split invoices if any
+        if hasattr(self, 'custom_split_children') and self.custom_split_children:
+            self._add_split_comments()
+
+    def _add_split_comments(self):
+        """Add system comments linking to child invoices after successful submission."""
+        try:
+            comment_links = []
+            for split_ref in self.custom_split_children:
+                if split_ref.sales_invoice:
+                    comment_links.append(
+                        f'<a href="/app/sales-invoice/{split_ref.sales_invoice}">{split_ref.sales_invoice}</a>'
+                    )
+
+            if comment_links:
+                comment_text = _("Invoice split into child invoices: {0}").format(
+                    ", ".join(comment_links)
+                )
+
+                frappe.get_doc(
+                    {
+                        "doctype": "Comment",
+                        "comment_type": "Info",
+                        "reference_doctype": "Sales Invoice",
+                        "reference_name": self.name,
+                        "content": comment_text,
+                    }
+                ).insert(ignore_permissions=True)
+
+        except Exception as e:
+            frappe.log_error(
+                f"Error adding split comments: {str(e)}", "Sales Invoice Split"
+            )
+
     def _process_invoice_split(self):
         """
         Main logic to process the invoice splitting.
-
-        Args:
-                doc: Sales Invoice document to split
+        Creates separate invoice for free medicine items and removes them from original.
         """
 
-        # Build groups based on split criteria
-        groups = self._build_item_groups()
+        # Identify free medicine items
+        free_medicine_items, regular_items = self._separate_free_medicine_items()
 
-        if len(groups) == 0:
-            frappe.msgprint(_("No splitting required - all items belong to same group"))
+        if not free_medicine_items:
+            frappe.msgprint(_("No free medicine items found - no splitting required"))
             return
 
-        child_invoices = []
-        for items in groups.values():
-            child_invoice = self._create_child_invoice(items)
-            child_invoices.append(child_invoice)
+        # Create separate invoice for free medicine items
+        child_invoice = self._create_child_invoice(free_medicine_items)
 
-        self._update_parent_references(child_invoices)
+        # Remove free medicine items from current invoice
+        self._remove_items_from_original(free_medicine_items)
 
-    def _build_item_groups(self):
+        # Update references
+        self._update_parent_references([child_invoice])
+
+        # Show alert to user about the split
+        self._show_split_alert(child_invoice, len(free_medicine_items))
+
+    def _show_split_alert(self, child_invoice, free_items_count):
         """
-        Group invoice items based on split criteria:
-        1. Storage temperature (custom_temperature)
-        2. Free medicine flag (free items with Medicine type)
+        Show user alert about the invoice split.
+
+        Args:
+            child_invoice: The created child invoice for free items
+            free_items_count: Number of free items moved
+        """
+        message = _(
+            "<b>Invoice Split Alert:</b><br>"
+            "{0} free medicine item(s) have been removed from this invoice and moved to a separate invoice.<br><br>"
+            "<b>New Invoice ID:</b> <a href='/app/sales-invoice/{1}' target='_blank'>{1}</a><br>"
+        ).format(free_items_count, child_invoice.name)
+
+        frappe.msgprint(
+            message,
+            title=_("Free Items Moved to Separate Invoice"),
+            indicator="blue"
+        )
+
+    def _separate_free_medicine_items(self):
+        """
+        Separate free medicine items from regular items.
 
         Returns:
-                dict: Groups keyed by (temperature, free_medicine_flag) tuple
+                tuple: (free_medicine_items, regular_items)
         """
-        groups = defaultdict(list)
-
+        free_medicine_items = []
+        regular_items = []
 
         for item in self.items:
             is_free = bool((item.amount or 0) == 0 or (item.net_amount or 0) == 0)
 
             custom_med_type = ""
-            temperature = None
 
             try:
                 item_doc = frappe.get_cached_doc("Item", item.item_code)
                 custom_med_type = item_doc.get("custom_medication_type", "")
-                temperature = item_doc.get("custom_storage_type")
             except Exception as e:
                 frappe.log_error(
                     f"Error fetching Item {item.item_code}: {str(e)}",
                     "Sales Invoice Split",
                 )
                 custom_med_type = ""
-                temperature = None
 
             is_medicine = str(custom_med_type).strip() == "Medicine"
+            is_free_medicine = is_free and is_medicine
 
-            free_medicine_flag = is_free and is_medicine
+            if is_free_medicine:
+                free_medicine_items.append(item)
+            else:
+                regular_items.append(item)
 
-            group_key = (temperature, free_medicine_flag)
+        return free_medicine_items, regular_items
 
-            groups[group_key].append(item)
+    def _remove_items_from_original(self, items_to_remove):
+        """
+        Remove specified items from the original invoice.
 
-        return dict(groups)
+        Args:
+            items_to_remove: List of items to remove from original invoice
+        """
+        # Get the names/indices of items to remove
+        items_to_remove_names = [item.name for item in items_to_remove if item.name]
+
+        # Filter out the items to be removed
+        remaining_items = []
+        for item in self.items:
+            if not item.name or item.name not in items_to_remove_names:
+                remaining_items.append(item)
+
+        # Clear current items and add back only the remaining ones
+        self.items = []
+        for item in remaining_items:
+            self.append("items", item.as_dict())
 
     def _create_child_invoice(self, items):
         """
@@ -93,12 +169,12 @@ class CustomSalesInvoice(SalesInvoice):
         Args:
                 parent_doc: Original Sales Invoice document
                 items: List of items for this child invoice
-                group_key: Tuple of (currency, temperature, free_medicine_flag)
+                group_key: Tuple of (  free_medicine_flag)
 
         Returns:
                 Sales Invoice: Created and submitted child invoice
         """
-        # currency, temperature, free_medicine_flag = group_key
+
 
         # Create new Sales Invoice
         child_doc = frappe.new_doc("Sales Invoice")
@@ -107,7 +183,7 @@ class CustomSalesInvoice(SalesInvoice):
         self._copy_header_fields(child_doc)
         #
         # Set split-specific fields
-        child_doc.naming_series = "ACC-SINV-.YYYY.-"
+        # child_doc.naming_series = "ACC-SINV-.YYYY.-"
         child_doc.custom_is_split_child = 1
         child_doc.custom_original_invoice = self.name
         child_doc.status = "Unpaid"
@@ -266,10 +342,6 @@ class CustomSalesInvoice(SalesInvoice):
                 child_doc.set(field, self.get(field))
 
     def _should_split_invoice(self):
-        if not self.naming_series or not self.naming_series.startswith(
-            "ACC-VSINV-.YYYY.-"
-        ):
-            return False
 
         if self.get("custom_is_split_child"):
             return False
@@ -297,29 +369,8 @@ class CustomSalesInvoice(SalesInvoice):
                 split_ref.sales_invoice = child_invoice.name
                 split_ref.remarks = _("Auto-split child invoice")
 
-            # Save parent document to persist the references
-            self.save(ignore_permissions=True)
-
-            # Add system comments linking to child invoices
-            comment_links = []
-            for child_invoice in child_invoices:
-                comment_links.append(
-                    f'<a href="/app/sales-invoice/{child_invoice.name}">{child_invoice.name}</a>'
-                )
-
-            comment_text = _("Invoice split into child invoices: {0}").format(
-                ", ".join(comment_links)
-            )
-
-            frappe.get_doc(
-                {
-                    "doctype": "Comment",
-                    "comment_type": "Info",
-                    "reference_doctype": "Sales Invoice",
-                    "reference_name": self.name,
-                    "content": comment_text,
-                }
-            ).insert(ignore_permissions=True)
+            # Note: Document will be saved automatically during submission process
+            # Comments will be added in on_submit after successful submission
 
         except Exception as e:
             frappe.log_error(
