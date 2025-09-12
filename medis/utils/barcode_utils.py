@@ -18,7 +18,7 @@ def generate_barcode(*args, **kwargs):
         "text_distance": 0,
         "background": "white",
         "foreground": "black",
-        "write_text": False
+        "write_text":False
     }
     CODE128(docname, writer=ImageWriter()).write(buffer, options)
     # Convert to transparent background
