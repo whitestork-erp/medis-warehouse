@@ -84,15 +84,6 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2025-08-29 12:31:26.666354",
-  "name": "Canceled",
-  "style": "Danger",
-  "workflow_state_name": "Canceled"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
   "modified": "2025-08-21 10:22:26.397047",
   "name": "Draft",
   "style": "",
@@ -115,24 +106,6 @@
   "name": "Archived",
   "style": "Inverse",
   "workflow_state_name": "Archived"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-29 14:58:18.548642",
-  "name": "Ready For Delivery",
-  "style": "Success",
-  "workflow_state_name": "Ready For Delivery"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2025-08-29 14:59:05.783317",
-  "name": "Delivered",
-  "style": "Success",
-  "workflow_state_name": "Delivered"
  },
  {
   "docstatus": 0,
@@ -187,5 +160,32 @@
   "name": "Out For Delivery",
   "style": "Info",
   "workflow_state_name": "Out For Delivery"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-29 12:31:26.666354",
+  "name": "Canceled",
+  "style": "Danger",
+  "workflow_state_name": "Canceled"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-29 14:58:18.548642",
+  "name": "Ready For Delivery",
+  "style": "Success",
+  "workflow_state_name": "Ready For Delivery"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2025-08-29 14:59:05.783317",
+  "name": "Delivered",
+  "style": "Success",
+  "workflow_state_name": "Delivered"
  }
 ]

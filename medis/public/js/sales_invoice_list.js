@@ -30,10 +30,8 @@ frappe.listview_settings['Sales Invoice'] = {
         listview.$result.find('.list-row:not(.list-row-head)').each(function (index) {
             const $row = $(this);
 
-            // Skip if button already exists
             if ($row.find('.btn-print-inline').length) return;
 
-            // Get data from listview.data array
             const rowData = listview.data[index];
             if (!rowData) return;
 
@@ -41,7 +39,8 @@ frappe.listview_settings['Sales Invoice'] = {
             const state = rowData.workflow_state;
 
             // Create print button
-            const disabled = (state !== 'Pending');
+            const disabled = (state !== 'Pending' || name.startsWith('ACC-VSINV-'));
+
             const $btn = $(`
                 <button class="btn btn-xs ${disabled ? 'btn-secondary' : 'btn-primary'} btn-print-inline"
                         ${disabled ? 'disabled' : ''}

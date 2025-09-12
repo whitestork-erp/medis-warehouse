@@ -1,0 +1,379 @@
+import frappe
+from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice
+import frappe
+from frappe import _
+
+from collections import defaultdict
+from frappe.model.workflow import apply_workflow
+
+
+class CustomSalesInvoice(SalesInvoice):
+
+    def before_submit(self):
+        if not self._should_split_invoice():
+            return
+
+        try:
+            self._process_invoice_split()
+        except Exception as e:
+            frappe.log_error(
+                f"Sales Invoice Split Error: {str(e)}", "Sales Invoice Split"
+            )
+            raise e
+        finally:
+            frappe.flags._si_split_running = False
+
+    def on_submit(self):
+        # Call parent on_submit first
+        super().on_submit()
+
+        # Add comments for split invoices if any
+        if hasattr(self, 'custom_split_children') and self.custom_split_children:
+            self._add_split_comments()
+
+    def _add_split_comments(self):
+        """Add system comments linking to child invoices after successful submission."""
+        try:
+            comment_links = []
+            for split_ref in self.custom_split_children:
+                if split_ref.sales_invoice:
+                    comment_links.append(
+                        f'<a href="/app/sales-invoice/{split_ref.sales_invoice}">{split_ref.sales_invoice}</a>'
+                    )
+
+            if comment_links:
+                comment_text = _("Invoice split into child invoices: {0}").format(
+                    ", ".join(comment_links)
+                )
+
+                frappe.get_doc(
+                    {
+                        "doctype": "Comment",
+                        "comment_type": "Info",
+                        "reference_doctype": "Sales Invoice",
+                        "reference_name": self.name,
+                        "content": comment_text,
+                    }
+                ).insert(ignore_permissions=True)
+
+        except Exception as e:
+            frappe.log_error(
+                f"Error adding split comments: {str(e)}", "Sales Invoice Split"
+            )
+
+    def _process_invoice_split(self):
+        """
+        Main logic to process the invoice splitting.
+        Creates separate invoice for free medicine items and removes them from original.
+        """
+
+        # Identify free medicine items
+        free_medicine_items, regular_items = self._separate_free_medicine_items()
+
+        if not free_medicine_items:
+
+            return
+
+        # Create separate invoice for free medicine items
+        child_invoice = self._create_child_invoice(free_medicine_items)
+
+        # Remove free medicine items from current invoice
+        self._remove_items_from_original(free_medicine_items)
+
+        # Update references
+        self._update_parent_references([child_invoice])
+
+        # Show alert to user about the split
+        self._show_split_alert(child_invoice, len(free_medicine_items))
+
+    def _show_split_alert(self, child_invoice, free_items_count):
+        """
+        Show user alert about the invoice split.
+
+        Args:
+            child_invoice: The created child invoice for free items
+            free_items_count: Number of free items moved
+        """
+        message = _(
+            "<b>Invoice Split Alert:</b><br>"
+            "{0} free medicine item(s) have been removed from this invoice and moved to a separate invoice.<br><br>"
+            "<b>New Invoice ID:</b> <a href='/app/sales-invoice/{1}' target='_blank'>{1}</a><br>"
+        ).format(free_items_count, child_invoice.name)
+
+        frappe.msgprint(
+            message,
+            title=_("Free Items Moved to Separate Invoice"),
+            indicator="blue"
+        )
+
+    def _separate_free_medicine_items(self):
+        """
+        Separate free medicine items from regular items.
+
+        Returns:
+                tuple: (free_medicine_items, regular_items)
+        """
+        free_medicine_items = []
+        regular_items = []
+
+        for item in self.items:
+            is_free = bool((item.amount or 0) == 0 or (item.net_amount or 0) == 0)
+
+            custom_med_type = ""
+
+            try:
+                item_doc = frappe.get_cached_doc("Item", item.item_code)
+                custom_med_type = item_doc.get("custom_medication_type", "")
+            except Exception as e:
+                frappe.log_error(
+                    f"Error fetching Item {item.item_code}: {str(e)}",
+                    "Sales Invoice Split",
+                )
+                custom_med_type = ""
+
+            is_medicine = str(custom_med_type).strip() == "Medicine"
+            is_free_medicine = is_free and is_medicine
+
+            if is_free_medicine:
+                free_medicine_items.append(item)
+            else:
+                regular_items.append(item)
+
+        return free_medicine_items, regular_items
+
+    def _remove_items_from_original(self, items_to_remove):
+        """
+        Remove specified items from the original invoice.
+
+        Args:
+            items_to_remove: List of items to remove from original invoice
+        """
+        # Get the names/indices of items to remove
+        items_to_remove_names = [item.name for item in items_to_remove if item.name]
+
+        # Filter out the items to be removed
+        remaining_items = []
+        for item in self.items:
+            if not item.name or item.name not in items_to_remove_names:
+                remaining_items.append(item)
+
+        # Clear current items and add back only the remaining ones
+        self.items = []
+        for item in remaining_items:
+            self.append("items", item.as_dict())
+
+    def _create_child_invoice(self, items):
+        """
+        Create a child Sales Invoice for a group of items.
+
+        Args:
+                parent_doc: Original Sales Invoice document
+                items: List of items for this child invoice
+                group_key: Tuple of (  free_medicine_flag)
+
+        Returns:
+                Sales Invoice: Created and submitted child invoice
+        """
+
+
+        # Create new Sales Invoice
+        child_doc = frappe.new_doc("Sales Invoice")
+
+        # Copy base header fields from parent
+        self._copy_header_fields(child_doc)
+        #
+        # Set split-specific fields
+        # child_doc.naming_series = "ACC-SINV-.YYYY.-"
+        child_doc.custom_is_split_child = 1
+        child_doc.custom_original_invoice = self.name
+        child_doc.status = "Unpaid"
+        child_doc.workflow_state = "Draft"
+        child_doc.update_stock = True
+        # Add items to child invoice
+        for item in items:
+            self._copy_item_to_child(item, child_doc)
+
+        # Copy taxes if they exist
+        if self.taxes:
+            self._copy_taxes_to_child(child_doc)
+
+        # Insert, save and submit the child invoice
+        child_doc.insert(ignore_permissions=True)
+        child_doc.save(ignore_permissions=True)
+        # child_doc.submit()
+        apply_workflow(child_doc,"Submit")
+
+        return child_doc
+
+    def _copy_taxes_to_child(self, child_doc):
+        """
+        Copy tax entries from parent to child invoice.
+
+        Args:
+                parent_doc: Original Sales Invoice
+                child_doc: Child Sales Invoice
+        """
+        if not self.taxes:
+            return
+
+        for parent_tax in self.taxes:
+            child_tax = child_doc.append("taxes", {})
+
+            tax_fields = [
+                "charge_type",
+                "account_head",
+                "description",
+                "included_in_print_rate",
+                "included_in_paid_amount",
+                "cost_center",
+                "rate",
+                "account_currency",
+                "tax_amount",
+                "base_tax_amount",
+                "tax_amount_after_discount_amount",
+                "base_tax_amount_after_discount_amount",
+                "item_wise_tax_detail",
+            ]
+
+            for field in tax_fields:
+                if hasattr(parent_tax, field):
+                    setattr(child_tax, field, getattr(parent_tax, field, None))
+
+    def _copy_item_to_child(self, parent_item, child_doc):
+        """
+        Copy an item from parent invoice to child invoice.
+
+        Args:
+                parent_item: Sales Invoice Item from parent
+                child_doc: Child Sales Invoice document
+        """
+        child_item = child_doc.append("items", {})
+
+        # Copy all relevant item fields
+        item_fields = [
+            "item_code",
+            "item_name",
+            "description",
+            "item_group",
+            "brand",
+            "qty",
+            "stock_qty",
+            "uom",
+            "conversion_factor",
+            "stock_uom",
+            "rate",
+            "price_list_rate",
+            "base_rate",
+            "base_price_list_rate",
+            "amount",
+            "base_amount",
+            "net_rate",
+            "base_net_rate",
+            "net_amount",
+            "base_net_amount",
+            "discount_percentage",
+            "discount_amount",
+            "base_discount_amount",
+            "warehouse",
+            "income_account",
+            "expense_account",
+            "cost_center",
+            "weight_per_unit",
+            "weight_uom",
+            "total_weight",
+            "batch_no",
+            "serial_no",
+            "custom_medication_type",
+            "custom_storage_type",
+        ]
+
+        for field in item_fields:
+            if hasattr(parent_item, field):
+                setattr(child_item, field, getattr(parent_item, field, None))
+
+    def _copy_header_fields(self, child_doc):
+        """
+        Copy essential header fields from parent to child invoice.
+
+        Args:
+            child_doc: New child Sales Invoice
+        """
+        fields_to_copy = [
+            "company",
+            "customer",
+            "customer_name",
+            "posting_date",
+            "posting_time",
+            "set_posting_time",
+            "due_date",
+            "currency",
+            "conversion_rate",
+            "selling_price_list",
+            "price_list_currency",
+            "plc_conversion_rate",
+            "customer_address",
+            "address_display",
+            "contact_person",
+            "contact_display",
+            "contact_mobile",
+            "contact_email",
+            "shipping_address_name",
+            "shipping_address",
+            "dispatch_address_name",
+            "dispatch_address",
+            "company_address",
+            "company_address_display",
+            "debit_to",
+            "project",
+            "cost_center",
+            "remarks",
+            "tc_name",
+            "terms",
+            "letter_head",
+            "select_print_heading",
+            "language",
+            "customer_group",
+            "territory",
+            "tax_category",
+        ]
+
+        for field in fields_to_copy:
+            if hasattr(self, field) and self.get(field):
+                child_doc.set(field, self.get(field))
+
+    def _should_split_invoice(self):
+
+        if self.get("custom_is_split_child"):
+            return False
+
+        if not self.items or len(self.items) == 0:
+            return False
+
+        return True
+
+    def _update_parent_references(self, child_invoices):
+        """
+        Update parent invoice with references to created child invoices.
+
+        Args:
+                parent_doc: Original Sales Invoice
+                child_invoices: List of created child invoices
+        """
+        try:
+            # Clear existing split children if any
+            self.custom_split_children = []
+
+            # Add references to each child invoice
+            for child_invoice in child_invoices:
+                split_ref = self.append("custom_split_children", {})
+                split_ref.sales_invoice = child_invoice.name
+                split_ref.remarks = _("Auto-split child invoice")
+
+            # Note: Document will be saved automatically during submission process
+            # Comments will be added in on_submit after successful submission
+
+        except Exception as e:
+            frappe.log_error(
+                f"Error updating parent references: {str(e)}", "Sales Invoice Split"
+            )
+            raise e

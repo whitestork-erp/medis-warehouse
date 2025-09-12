@@ -14,7 +14,7 @@ app_license = "mit"
 add_to_apps_screen = [
     {
         "name": "medis",
-        "logo": "/assets/medis/images/hearth-care-icon.webp",
+        "logo": "/assets/medis/images/health.webp",
         "title": "Medis",
         "route": "/app/medis-dashboard",
         "has_permission": False,
@@ -23,6 +23,12 @@ add_to_apps_screen = [
 
 # Includes in <head>
 # ------------------
+
+website_context = {
+	"favicon": '/assets/medis/images/health.webp',
+	"splash_image": "/assets/medis/images/health.webp"
+}
+
 # hooks.py in your custom app
 # include js, css files in header of desk.html
 # app_include_css = "/assets/medis/css/medis.css"
@@ -75,7 +81,7 @@ fixtures = [
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"Sales Invoice" : "public/js/sales-invoice.workflow-override.js"}
+doctype_js = {"Sales Invoice" : "public/js/sales_invoice.js"}
 doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -161,28 +167,20 @@ doctype_list_js = {"Sales Invoice": "public/js/sales_invoice_list.js"}
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Sales Invoice": "medis.overrides.sales_invoice.CustomSalesInvoice"
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
 doc_events = {
-    "Delivery Route": {
-        # "on_update": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-        # "after_insert": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-        "on_submit": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states",
-        # "on_update_after_submit": "medis.medis.doctype.delivery_route.delivery_route.update_invoice_states"
-        # "before_print":"medis.medis.doctype.delivery_route.delivery_route.before_print",
-        # "on_print": "medis.medis.doctype.delivery_route.delivery_route.on_print",
-        # "on_print_pdf": "medis.medis.doctype.delivery_route.delivery_route.on_print_pdf",
-        # "after_print": "medis.medis.doctype.delivery_route.delivery_route.after_print"
-    },
-    # "Sales Invoice": {
-    #     "on_workflow_action": "medis.medis.doctype.delivery_route.delivery_route.after_print"
-    # }
+    "Sales Invoice": {
+        "validate": "medis.sales_invoice_item_controller.sales_invoice_validate",
+        "before_save": "medis.sales_invoice_item_controller.sales_invoice_before_save",
+        "on_update": "medis.sales_invoice_item_controller.sales_invoice_on_update"
+    }
 }
 
 # Scheduled Tasks

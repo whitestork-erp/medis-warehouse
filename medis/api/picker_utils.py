@@ -17,7 +17,6 @@ def transition_to_picking(invoice_barcode):
 
     try:
         apply_workflow(doc, "Picking Scan")
-        frappe.db.commit()
         return {"ok": True, "msg": f"Moved to {doc.workflow_state}"}
     except Exception as e:
         frappe.log_error(title="Scan Pick Error", message=str(e))
