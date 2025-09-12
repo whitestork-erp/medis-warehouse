@@ -71,7 +71,7 @@ class CustomSalesInvoice(SalesInvoice):
         free_medicine_items, regular_items = self._separate_free_medicine_items()
 
         if not free_medicine_items:
-            frappe.msgprint(_("No free medicine items found - no splitting required"))
+
             return
 
         # Create separate invoice for free medicine items
