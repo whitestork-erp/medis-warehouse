@@ -14,10 +14,11 @@ def generate_barcode(*args, **kwargs):
         "module_width": 0.15,   # narrower bars
         "module_height": 5,    # shorter height
         "quiet_zone": 1,        # less margin
-        "font_size": 0,         # no text
+        "font_size": 1,         # no text
         "text_distance": 0,
         "background": "white",
-        "foreground": "black"
+        "foreground": "black",
+        "write_text": False
     }
     CODE128(docname, writer=ImageWriter()).write(buffer, options)
     # Convert to transparent background
