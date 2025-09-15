@@ -62,96 +62,52 @@ frappe.listview_settings["Sales Invoice"] = {
 			$lastCol.after($actionCol);
 
 			// Add click handler
-			$btn.on("click", function (e) {
+			$btn.on("click", async function (e) {
 				e.stopPropagation();
 				e.preventDefault();
 
 				if (state === "Pending") {
-					console.log("Printing and updating workflow foqqqr", name);
-					const frm = frappe.get_doc("Sales Invoice", "ACC-SINV-2025-00013");
-					console.log("====================== frm11 =====================", frm);
-
-					// frappe.call({
-					// 	method: "silent_print.utils.print_format.print_silently",
-					// 	args: {
-					// 		doctype: 'Sales Invoice',
-					// 		name: 'ACC-SINV-2025-00013',
-					// 		print_format: 'Invoice Test',
-					// 		print_type: 'Invoice',
-					// 	},
-					// });
+					console.log("Printing and updating workflow for", name);
+					const frm = await frappe.get_doc("Sales Invoice", name);
+					console.log("====================== frm =====================", frm);
 
 					let printService = new frappe.silent_print.WebSocketPrinter();
 
-					// console.log("--------------------- send2Bridge ------------------");
+					frappe.call({
+                        method: 'frappe.model.workflow.bulk_workflow_approval',
+                        args: {
+                            doctype: 'Sales Invoice',
+                            docnames: [name],
+                            action: 'Print'
+                        },
+                        freeze: true,
+                        freeze_message: __('Processing...'),
+                        callback(r) {
+                            if (!r.exc) {
+                                listview.refresh();
+                            }
+                        }
+                    });
+
 					frappe.call({
 						method: "silent_print.utils.print_format.create_pdf",
 						args: {
 							doctype: 'Sales Invoice',
-							name: 'ACC-SINV-2025-00013',
+							name: name,
 							silent_print_format: 'Invoice Test',
 							no_letterhead: 0,
-							_lang: "es",
+							_lang: "en",
 						},
 						callback: (r) => {
 							printService.submit({
-								type: 'Invoice', //this is the label that identifies the printer in WHB's configuration
+								type: 'Invoice Printer',
 								url: "file.pdf",
 								file_content: r.message.pdf_base64,
 							});
 						},
 					});
-
-					// send2Bridge(
-					// 	frdoc,
-					// 	"Invoice Test",
-					// 	"HP30138B464FF4(HP Color Laser 150)"
-					// );
-
-					// frappe.call({
-					//     method: 'frappe.model.workflow.bulk_workflow_approval',
-					//     args: {
-					//         doctype: 'Sales Invoice',
-					//         docnames: [name],
-					//         action: 'Print'
-					//     },
-					//     freeze: true,
-					//     freeze_message: __('Processing...'),
-					//     callback(r) {
-					//         if (!r.exc) {
-					//             // frappe.show_alert({
-					//             //     message: __('Sales Invoice printed and workflow updated'),
-					//             //     indicator: 'green'
-					//             // });
-					//             send2Bridge(frappe.get_doc("Sales Invoice", name), "Invoice Test", "HP30138B464FF4(HP Color Laser 150)");
-					//             listview.refresh();
-					//         }
-					//     }
-					// });
 				}
 			});
-		});
-	},
-	send2Bridge(frm, print_format, print_type) {
-		var printService = new frappe.silent_print.WebSocketPrinter();
-
-		console.log("--------------------- send2Bridge ------------------");
-		frappe.call({
-			method: "silent_print.utils.print_format.create_pdf",
-			args: {
-				doctype: frm.doc.doctype,
-				name: frm.doc.name,
-				silent_print_format: print_format,
-				no_letterhead: 1,
-				_lang: "es",
-			},
-			callback: (r) => {
-				printService.submit({
-					type: print_type, //this is the label that identifies the printer in WHB's configuration
-					// url: "file.pdf",
-					file_content: r.message.pdf_base64,
-				});
-			},
 		});
 	},
 	get_indicator: function (doc) {
@@ -185,7 +141,6 @@ frappe.listview_settings["Sales Invoice"] = {
 
 frappe.provide("frappe.silent_print");
 frappe.silent_print.WebSocketPrinter = function (options) {
-    console.log("--------------------- WebSocketPrinter ------------------");
     var defaults = {
         url: "ws://127.0.0.1:12212/printer",
         onConnect: function () {
@@ -214,10 +169,10 @@ frappe.silent_print.WebSocketPrinter = function (options) {
         settings.onDisconnect();
         reconnect();
     };
-
+    
     var onError = function () {
         if (frappe.whb == undefined){
-            frappe.msgprint("Connection to the printer could not be established. Please verify that the  <a href='https://github.com/imTigger/webapp-hardware-bridge' target='_blank'>WebApp Hardware Bridge</a> is running.")
+            frappe.msgprint("No se pudo establecer conexión con la impresora. Favor verificar que el <a href='https://github.com/imTigger/webapp-hardware-bridge' target='_blank'>WebApp Hardware Bridge</a> esté ejecutándose.")
             frappe.whb = true
         }
     };
