@@ -11,11 +11,9 @@ frappe.listview_settings["Sales Invoice"] = {
 	},
 
 	setup_action_column(listview) {
-		// Add action column header if not already present
 		setTimeout(() => {
 			const $headerRow = listview.$result.find(".list-row-head");
 			if ($headerRow.length && !$headerRow.find(".action-column-header").length) {
-				// Find the last visible column and add our action column after it
 				const $lastCol = $headerRow.find(".list-row-col").last();
 				$lastCol.after(`<div class="list-row-col action-column-header" style="max-width: 100px; min-width: 100px; text-align: center;">
                     <span class="text-muted">Action</span>
