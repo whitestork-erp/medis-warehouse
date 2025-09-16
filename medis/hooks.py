@@ -52,10 +52,16 @@ fixtures = [
         "dt": "Workflow",
         "filters": [["name", "in", ["Sales Invoice Workflow", "Delivery Route Workflow"]]],
     },
+    {
+        "dt": "Custom HTML Block",
+        "filters": [["name", "in", ["Controller Scanning Screen", "Picker Scanning Screen"]]],
+    },
+    {
+        "dt": "Print Format",
+        "filters": [["name", "in", ["Medis Split Invoice"]]],
+    },
     "Workflow State",
     "Workflow Action Master",
-    "Custom HTML Block",
-    "Print Format"
 ]
 
 
