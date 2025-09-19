@@ -59,6 +59,9 @@ fixtures = [
     {
         "dt": "Print Format",
         "filters": [["name", "in", ["Medis Split Invoice"]]],
+    },  {
+        "dt": "Print Style",
+        "filters": [["name", "in", ["Print Style Delivery Route"]]],
     },
     "Workflow State",
     "Workflow Action Master",
