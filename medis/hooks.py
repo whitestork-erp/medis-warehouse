@@ -54,7 +54,7 @@ fixtures = [
     },
     {
         "dt": "Custom HTML Block",
-        "filters": [["name", "in", ["Controller Scanning Screen", "Picker Scanning Screen"]]],
+        "filters": [["name", "in", ["Controller Scanning Screen", "Picker Scanning Screen","Archive Screen"]]],
     },
     {
         "dt": "Print Format",
