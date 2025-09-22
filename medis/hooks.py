@@ -14,7 +14,7 @@ app_license = "mit"
 add_to_apps_screen = [
     {
         "name": "medis",
-        "logo": "/assets/medis/images/health.webp",
+        "logo": "/assets/medis/images/medis-icon.png",
         "title": "Medis",
         "route": "/app/medis-dashboard",
         "has_permission": False,
@@ -25,8 +25,8 @@ add_to_apps_screen = [
 # ------------------
 
 website_context = {
-	"favicon": '/assets/medis/images/health.webp',
-	"splash_image": "/assets/medis/images/health.webp"
+	"favicon": '/assets/medis/images/medis-icon.png',
+	"splash_image": "/assets/medis/images/medis-icon.png"
 }
 
 # hooks.py in your custom app
@@ -54,7 +54,7 @@ fixtures = [
     },
     {
         "dt": "Custom HTML Block",
-        "filters": [["name", "in", ["Controller Scanning Screen", "Picker Scanning Screen"]]],
+        "filters": [["name", "in", ["Controller Scanning Screen", "Picker Scanning Screen","Archive Screen"]]],
     },
     {
         "dt": "Print Format",

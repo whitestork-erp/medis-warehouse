@@ -4,7 +4,7 @@
  "creation": "2025-08-27 20:48:03.631645",
  "custom_blocks": [
   {
-   "custom_block_name": "Scan Item",
+   "custom_block_name": "Picker Scanning Screen",
    "label": "Scan Item"
   }
  ],
@@ -17,7 +17,7 @@
  "is_hidden": 0,
  "label": "Picker Dashboard",
  "links": [],
- "modified": "2025-09-03 10:43:02.033695",
+ "modified": "2025-09-19 08:55:22.066377",
  "modified_by": "Administrator",
  "module": "Medis",
  "name": "Picker Dashboard",

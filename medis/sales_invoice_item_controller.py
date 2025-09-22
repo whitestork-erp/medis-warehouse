@@ -66,7 +66,7 @@ def validate_pricing_rule_bypass(doc, method):
                 )
                 item.pricing_rules = "[]"
 
-# Hook functions that can be called from hooks.py
+# -------------------- Hook Functions --------------------
 def sales_invoice_validate(doc, method):
     """Main validation function to be called from hooks.py"""
     validate_sales_invoice_item(doc, method)
