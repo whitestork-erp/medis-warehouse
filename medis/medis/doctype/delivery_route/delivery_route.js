@@ -41,43 +41,7 @@ frappe.ui.form.on("Delivery Route", {
 				frappe.confirm(
 					"<b>Are you sure you want to cancel this delivery route?</b><br>This will also cancel all associated sales invoices.",
 					async () => {
-						try {
-							frappe.call({
-								method: "medis.medis.doctype.delivery_route.delivery_route.repack_delivery_route_invoices",
-								args: {
-									delivery_route_name: frm.doc.name,
-								},
-								callback: function (r) {
-									if (r.message) {
-										frappe.msgprint({
-											title: __("Success"),
-											message: __(
-												"Delivery route and associated sales invoices have been cancelled successfully."
-											),
-											indicator: "green",
-										});
-										resolve();
-									}
-								},
-								error: function (r) {
-									frappe.msgprint({
-										title: __("Error"),
-										message: __(
-											"Failed to cancel sales invoices. Please try again."
-										),
-										indicator: "red",
-									});
-									reject();
-								},
-							});
-						} catch (error) {
-							frappe.msgprint({
-								title: __("Error"),
-								message: __("An unexpected error occurred: ") + error.message,
-								indicator: "red",
-							});
-							reject();
-						}
+						resolve();
 					},
 					() => reject()
 				);

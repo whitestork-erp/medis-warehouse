@@ -45,52 +45,45 @@ class DeliveryRoute(Document):
 			submitted_invoices_docs.append(invoice)
 		bulk_workflow_approval(json.dumps([doc.name for doc in submitted_invoices_docs]),"Sales Invoice","Assign Delivery Route")
 
-@frappe.whitelist()
-def repack_delivery_route_invoices(delivery_route_name):
-    """Repack all sales invoices associated with the delivery route."""
-    try:
-        delivery_route = frappe.get_doc("Delivery Route", delivery_route_name)
+	def validate_workflow(self):
+		state = self.get("workflow_state")
+		if(state == "Canceled"):
+			items = self.get("delivery_route_item") or []
+			for item in items:
 
-        cancelled_invoices = []
-        failed_invoices = []
+				invoice = frappe.get_doc("Sales Invoice", item.invoice_number)
+				if invoice.workflow_state != "Packed":
+					apply_workflow(invoice, "Repack")
+					invoice.reload()
 
-        cancelled_invoices_docs = []
-        for item in delivery_route.get("delivery_route_item") or []:
+		return super().validate_workflow()
 
-            try:
-                invoice = frappe.get_doc("Sales Invoice", item.invoice_number)
+# @frappe.whitelist()
+# def repack_delivery_route_invoices(delivery_route_name):
+#     """Repack all sales invoices associated with the delivery route."""
+#     try:
+#         delivery_route = frappe.get_doc("Delivery Route", delivery_route_name)
 
-                if invoice.workflow_state != "Packed":
-                    cancelled_invoices_docs.append(invoice)
-                    cancelled_invoices.append(item.invoice_number)
+#         items = delivery_route.get("delivery_route_item") or []
+#         for item in items:
 
-            except Exception as e:
-                frappe.log_error(
-                    title="Failed to Repack Sales Invoice",
-                    message=f"Failed to repack invoice {item.invoice_number}: {str(e)}"
-                )
-                failed_invoices.append(item.invoice_number)
+#             invoice = frappe.get_doc("Sales Invoice", item.invoice_number)
+#             if invoice.workflow_state != "Packed":
+#                 apply_workflow(invoice, "Repack")
+#                 invoice.reload()
+#         message = f"Successfully repacked {len(items)} sales invoices."
 
-        if cancelled_invoices_docs:
-            bulk_workflow_approval(json.dumps([doc.name for doc in cancelled_invoices_docs]), "Sales Invoice", "Repack")
+#         return {
+#             "status": "success",
+#             "message": message,
+#         }
 
-        message = f"Successfully repacked {len(cancelled_invoices)} sales invoices."
-        if failed_invoices:
-            message += f" Failed to repack {len(failed_invoices)} invoices: {', '.join(failed_invoices)}"
-
-        return {
-            "status": "success",
-            "message": message,
-            "cancelled_invoices": cancelled_invoices,
-            "failed_invoices": failed_invoices
-        }
-
-    except Exception as e:
-        frappe.log_error(
-            title="Delivery Route Invoice Cancellation Error",
-            message=f"Failed to cancel invoices for delivery route {delivery_route_name}: {str(e)}"
-        )
-        frappe.throw(f"Failed to cancel sales invoices: {str(e)}")
+#     except Exception as e:
+#         frappe.log_error(
+#             title="Delivery Route Invoice Cancellation Error",
+#             message=f"Failed to cancel invoices for delivery route {delivery_route_name}: {str(e)}"
+#         )
+#         frappe.throw(f"Failed to cancel sales invoices: {str(e)}")
 
 @frappe.whitelist()
 def update_invoice_workflow_action(invoice_number, action):
