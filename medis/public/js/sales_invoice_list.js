@@ -62,24 +62,23 @@ frappe.listview_settings["Sales Invoice"] = {
 			$btn.on("click", async function (e) {
 				e.stopPropagation();
 				e.preventDefault();
-				// const frm = await frappe.get_doc("Sales Invoice", name);
+
+				const doc = await frappe.db.get_doc("Sales Invoice", name);
+
 				if (state === "Pending") {
 					console.log("Printing and updating workflow for", name);
 					let printService = new frappe.silent_print.WebSocketPrinter();
 
 					frappe.call({
-                        method: 'frappe.model.workflow.bulk_workflow_approval',
+                        method: 'frappe.model.workflow.apply_workflow',
                         args: {
-                            doctype: 'Sales Invoice',
-                            docnames: [name],
+                            doc,
                             action: 'Print'
                         },
                         freeze: true,
                         freeze_message: __('Processing...'),
                         callback(r) {
-                            if (!r.exc) {
-                                listview.refresh();
-                            }
+                            listview.refresh();
                         }
                     });
 
@@ -166,7 +165,7 @@ frappe.silent_print.WebSocketPrinter = function (options) {
 
     var onError = function () {
         if (frappe.whb == undefined){
-            frappe.msgprint("No se pudo establecer conexión con la impresora. Favor verificar que el <a href='https://github.com/imTigger/webapp-hardware-bridge' target='_blank'>WebApp Hardware Bridge</a> esté ejecutándose.")
+            frappe.msgprint("Could not connect to the printer. Please verify that the <a href='https://github.com/imTigger/webapp-hardware-bridge' target='_blank'>WebApp Hardware Bridge</a> is running.")
             frappe.whb = true
         }
     };

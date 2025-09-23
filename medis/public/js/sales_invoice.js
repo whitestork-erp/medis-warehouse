@@ -75,44 +75,6 @@ frappe.ui.form.on("Sales Invoice", {
 	onload(frm) {
 		frm.trigger("naming_series");
 	},
-	// workflow_state(frm) {
-	// 	console.log("workflow_state changed to:", frm.doc.workflow_state);
-
-	// 	// Handle different workflow states
-	// 	switch(frm.doc.workflow_state) {
-	// 		case "Pending":
-	// 			console.log("Invoice is now Pending");
-	// 			break;
-
-	// 		case "Printed":
-	// 			console.log("Invoice is now Printed");
-	// 			break;
-
-	// 		case "Paid":
-	// 			console.log("Invoice is now Paid");
-	// 			break;
-
-	// 		case "Cancelled":
-	// 			console.log("Invoice is now Cancelled");
-	// 			break;
-
-	// 		default:
-	// 			// Default handling for other states
-	// 			break;
-	// 	}
-
-	// 	// Example of updating UI based on workflow state
-	// 	// const isEditable = ["Draft", "Pending"].includes(frm.doc.workflow_state);
-	// 	// frm.toggle_enable('items', isEditable);
-	// 	// frm.toggle_enable('payment_terms_template', isEditable);
-
-	// 	// // Trigger custom event that other modules can listen to
-	// 	// frappe.event_hub.trigger('sales_invoice_workflow_changed', {
-	// 	// 	name: frm.doc.name,
-	// 	// 	workflow_state: frm.doc.workflow_state,
-	// 	// 	doctype: frm.doc.doctype
-	// 	// });
-	// }
 });
 
 frappe.ui.form.on("Sales Invoice Item", {
@@ -240,7 +202,7 @@ frappe.silent_print.WebSocketPrinter = function (options) {
 	var onError = function () {
 		if (frappe.whb == undefined) {
 			frappe.msgprint(
-				"No se pudo establecer conexión con la impresora. Favor verificar que el <a href='https://github.com/imTigger/webapp-hardware-bridge' target='_blank'>WebApp Hardware Bridge</a> esté ejecutándose."
+				"Could not connect to the printer. Please verify that the <a href='https://github.com/imTigger/webapp-hardware-bridge' target='_blank'>WebApp Hardware Bridge</a> is running."
 			);
 			frappe.whb = true;
 		}
