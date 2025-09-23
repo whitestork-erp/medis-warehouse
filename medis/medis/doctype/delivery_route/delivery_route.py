@@ -2,7 +2,6 @@ import frappe
 from frappe.model.document import Document
 from frappe.workflow.doctype.workflow_action.workflow_action import apply_workflow
 import json
-from frappe.model.workflow import bulk_workflow_approval
 
 class DeliveryRoute(Document):
 
@@ -18,32 +17,23 @@ class DeliveryRoute(Document):
 
 		self._last_child_rows = json.dumps(list(current_items))
 
-		added_children_docs = []
 		linked = current_items - previous_items
 		for child_name in linked:
 			child_doc = frappe.get_doc("Sales Invoice", child_name)
 			if child_doc.workflow_state != "Ready For Delivery":
-				added_children_docs.append(child_doc)
-		if added_children_docs:
-			bulk_workflow_approval(json.dumps([doc.name for doc in added_children_docs]),"Sales Invoice","Prepare For Delivery")
+				apply_workflow(child_doc, "Prepare For Delivery")
 
-		removed_children_docs = []
 		unlinked = previous_items - current_items
 		for child_name in unlinked:
 			child_doc = frappe.get_doc("Sales Invoice", child_name)
 			if child_doc.workflow_state != "Packed":
-				removed_children_docs.append(child_doc)
-
-		if removed_children_docs:
-			bulk_workflow_approval(json.dumps([doc.name for doc in removed_children_docs]),"Sales Invoice","Repack")
+				apply_workflow(child_doc, "Repack")
 
 	def on_submit(self):
 		submitted_invoices = {row.invoice_number for row in self.delivery_route_item if row.invoice_number}
-		submitted_invoices_docs = []
 		for item in submitted_invoices:
 			invoice = frappe.get_doc("Sales Invoice", item)
-			submitted_invoices_docs.append(invoice)
-		bulk_workflow_approval(json.dumps([doc.name for doc in submitted_invoices_docs]),"Sales Invoice","Assign Delivery Route")
+			apply_workflow(invoice, "Assign Delivery Route")
 
 	def validate_workflow(self):
 		state = self.get("workflow_state")
