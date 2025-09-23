@@ -11,17 +11,17 @@ class CustomSalesInvoice(SalesInvoice):
 
     def before_submit(self):
         if not self._should_split_invoice():
+            super().before_submit()
             return
 
         try:
             self._process_invoice_split()
+            super().before_submit()
         except Exception as e:
             frappe.log_error(
                 f"Sales Invoice Split Error: {str(e)}", "Sales Invoice Split"
             )
             raise e
-        finally:
-            frappe.flags._si_split_running = False
 
     def on_submit(self):
         # Call parent on_submit first
