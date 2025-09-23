@@ -29,27 +29,34 @@ add_to_apps_screen = [
 # app_include_js = "assets/medis/js/invoice_status_updater.js"
 # app_include_js = ["/assets/medis/js/desktop.js"]
 app_include_js = "/assets/medis/js/desktop.js"
-fixtures = [
-    {
-        "dt": "Custom Field",
-        "filters": [["name", "in", ["Sales Invoice-workflow_state"]]],
-    },
-    {
-        "dt": "Role",
-        "filters": [["name", "in", ["Delivery Route Manager","Controller","Picker","Sales Manager"]]],
-    },
-    {
-        "dt": "Role Profile",
-        "filters": [["name", "in", ["Medis - Delivery Route Manager","Picker Profile","Medis - Controller"]]],
-    },
-    {
-        "dt": "Workflow",
-        "filters": [["name", "in", ["Sales Invoice Workflow", "Delivery Route Workflow"]]],
-    },
-    "Workflow State",
-    "Workflow Action Master",
-    "Custom HTML Block",
-    "Print Format"
+# fixtures = [
+#     {
+#         "dt": "Custom Field",
+#         "filters": [["name", "in", ["Sales Invoice-workflow_state"]]],
+#     },
+#     {
+#         "dt": "Role",
+#         "filters": [["name", "in", ["Delivery Route Manager","Controller","Picker","Sales Manager"]]],
+#     },
+#     {
+#         "dt": "Role Profile",
+#         "filters": [["name", "in", ["Medis - Delivery Route Manager","Picker Profile","Medis - Controller"]]],
+#     },
+#     {
+#         "dt": "Workflow",
+#         "filters": [["name", "in", ["Sales Invoice Workflow", "Delivery Route Workflow"]]],
+#     },
+#     "Workflow State",
+#     "Workflow Action Master",
+#     "Custom HTML Block",
+#     "Print Format"
+# ]
+
+fixtures =[
+     {
+        "dt": "Print Format",
+        "filters": [["name", "in", ["Medis Split Invoice"]]],
+    }
 ]
 
 
