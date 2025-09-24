@@ -71,8 +71,8 @@ class CustomSalesInvoice(SalesInvoice):
         free_medicine_items, regular_items = self._separate_free_medicine_items()
 
         if not free_medicine_items:
-
             return
+        self._update_parent_quantities(regular_items)
 
         # Create separate invoice for free medicine items
         child_invoice = self._create_child_invoice(free_medicine_items)
@@ -162,6 +162,13 @@ class CustomSalesInvoice(SalesInvoice):
         for item in remaining_items:
             self.append("items", item.as_dict())
 
+    def _update_parent_quantities(self, regular_items):
+        count = 0
+
+        for item in regular_items:
+            count += item.qty or 0
+        self.total_qty = count
+
     def _create_child_invoice(self, items):
         """
         Create a child Sales Invoice for a group of items.
@@ -181,9 +188,9 @@ class CustomSalesInvoice(SalesInvoice):
 
         # Copy base header fields from parent
         self._copy_header_fields(child_doc)
-        #
-        # Set split-specific fields
-        # child_doc.naming_series = "ACC-SINV-.YYYY.-"
+
+        child_doc.name = f"{self.name}-1"
+        child_doc.flags.name_set = True
         child_doc.custom_is_split_child = 1
         child_doc.custom_original_invoice = self.name
         child_doc.status = "Unpaid"
@@ -192,14 +199,15 @@ class CustomSalesInvoice(SalesInvoice):
         # Add items to child invoice
         for item in items:
             self._copy_item_to_child(item, child_doc)
+            child_doc.total_qty = (child_doc.total_qty or 0) + (item.qty or 0)
 
         # Copy taxes if they exist
         if self.taxes:
             self._copy_taxes_to_child(child_doc)
 
         # Insert, save and submit the child invoice
-        child_doc.insert(ignore_permissions=True)
-        child_doc.save(ignore_permissions=True)
+        child_doc.insert()
+        child_doc.save()
         # child_doc.submit()
         apply_workflow(child_doc,"Submit")
 
