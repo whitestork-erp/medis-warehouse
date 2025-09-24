@@ -188,9 +188,9 @@ class CustomSalesInvoice(SalesInvoice):
 
         # Copy base header fields from parent
         self._copy_header_fields(child_doc)
-        #
-        # Set split-specific fields
-        # child_doc.naming_series = "ACC-SINV-.YYYY.-"
+
+        child_doc.name = f"{self.name}-1"
+        child_doc.flags.name_set = True
         child_doc.custom_is_split_child = 1
         child_doc.custom_original_invoice = self.name
         child_doc.status = "Unpaid"
@@ -199,14 +199,15 @@ class CustomSalesInvoice(SalesInvoice):
         # Add items to child invoice
         for item in items:
             self._copy_item_to_child(item, child_doc)
+            child_doc.total_qty = (child_doc.total_qty or 0) + (item.qty or 0)
 
         # Copy taxes if they exist
         if self.taxes:
             self._copy_taxes_to_child(child_doc)
 
         # Insert, save and submit the child invoice
-        child_doc.insert(ignore_permissions=True)
-        child_doc.save(ignore_permissions=True)
+        child_doc.insert()
+        child_doc.save()
         # child_doc.submit()
         apply_workflow(child_doc,"Submit")
 
