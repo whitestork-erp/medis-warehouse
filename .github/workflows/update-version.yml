@@ -30,7 +30,7 @@ jobs:
     - name: Update version in __init__.py
       run: |
         VERSION="${{ steps.extract_version.outputs.version }}"
-        INIT_FILE="apps/medis/medis/__init__.py"
+        INIT_FILE="medis/__init__.py"
 
         if [ -f "$INIT_FILE" ]; then
           # Update the __version__ line
@@ -63,7 +63,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
 
-        git add apps/medis/medis/__init__.py
+        git add medis/__init__.py
         git commit -m "chore: update version to ${{ steps.extract_version.outputs.version }} for tag ${{ steps.extract_version.outputs.tag_name }}"
 
         # Push to the default branch (usually main or master)
@@ -76,7 +76,7 @@ jobs:
         echo "## Version Update Summary" >> $GITHUB_STEP_SUMMARY
         echo "- **Tag:** ${{ steps.extract_version.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Version:** ${{ steps.extract_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **File Updated:** apps/medis/medis/__init__.py" >> $GITHUB_STEP_SUMMARY
+        echo "- **File Updated:** medis/__init__.py" >> $GITHUB_STEP_SUMMARY
         if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
           echo "- **Status:** ✅ Version updated and committed" >> $GITHUB_STEP_SUMMARY
         else
