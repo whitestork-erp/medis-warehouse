@@ -71,8 +71,8 @@ class CustomSalesInvoice(SalesInvoice):
         free_medicine_items, regular_items = self._separate_free_medicine_items()
 
         if not free_medicine_items:
-
             return
+        self._update_parent_quantities(regular_items)
 
         # Create separate invoice for free medicine items
         child_invoice = self._create_child_invoice(free_medicine_items)
@@ -161,6 +161,13 @@ class CustomSalesInvoice(SalesInvoice):
         self.items = []
         for item in remaining_items:
             self.append("items", item.as_dict())
+
+    def _update_parent_quantities(self, regular_items):
+        count = 0
+
+        for item in regular_items:
+            count += item.qty or 0
+        self.total_qty = count
 
     def _create_child_invoice(self, items):
         """
