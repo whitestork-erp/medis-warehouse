@@ -13,6 +13,8 @@ def start_invoice_controlling(invoice):
 
         if delivery_state == "Picking":
             apply_workflow(doc, "Control Scan")
+            doc.custom_controller = frappe.session.user
+            doc.save()
             return {"success": True, "doc": doc}
         if delivery_state == "Controlling":
             return {"success": True, "doc": doc}
@@ -23,6 +25,14 @@ def start_invoice_controlling(invoice):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "get_invoice_by_barcode")
         return {"success": False, "doc": None, "msg": str(e)}
+
+@frappe.whitelist()
+def missing_item_found(invoice):
+    doc = frappe.get_doc("Sales Invoice", invoice)
+    if doc.custom_first_attempt_miss:
+       return
+    doc.custom_first_attempt_miss = 1
+    doc.save()
 
 @frappe.whitelist()
 def get_item_by_barcode(barcode):
