@@ -78,7 +78,7 @@ class CustomSalesInvoice(SalesInvoice):
         child_invoice = self._create_child_invoice(free_medicine_items)
 
         # Remove free medicine items from current invoice
-        self._remove_items_from_original(free_medicine_items)
+        self._keep_original_items(regular_items)
 
         # Update references
         self._update_parent_references([child_invoice])
@@ -132,35 +132,33 @@ class CustomSalesInvoice(SalesInvoice):
                 custom_med_type = ""
 
             is_medicine = str(custom_med_type).strip() == "Medicine"
-            is_free_medicine = is_free and is_medicine
+            is_free_medicine = is_free and is_medicine and item.name
 
             if is_free_medicine:
                 free_medicine_items.append(item)
-            else:
+            elif item.name:
                 regular_items.append(item)
 
         return free_medicine_items, regular_items
 
-    def _remove_items_from_original(self, items_to_remove):
+    def _keep_original_items(self, regular_items):
         """
         Remove specified items from the original invoice.
 
         Args:
             items_to_remove: List of items to remove from original invoice
         """
-        # Get the names/indices of items to remove
-        items_to_remove_names = [item.name for item in items_to_remove if item.name]
+        # # Get the names/indices of items to remove
+        # items_to_remove_names = [item.name for item in items_to_remove if item.name]
 
-        # Filter out the items to be removed
-        remaining_items = []
-        for item in self.items:
-            if not item.name or item.name not in items_to_remove_names:
-                remaining_items.append(item)
+        # # Filter out the items to be removed
+        # remaining_items = []
+        # for item in self.items:
+        #     if not item.name or item.name not in items_to_remove_names:
+        #         remaining_items.append(item)
 
         # Clear current items and add back only the remaining ones
-        self.items = []
-        for item in remaining_items:
-            self.append("items", item.as_dict())
+        self.items = regular_items
 
     def _update_parent_quantities(self, regular_items):
         count = 0
