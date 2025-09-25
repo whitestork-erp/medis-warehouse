@@ -65,6 +65,19 @@ fixtures = [
     },
     "Workflow State",
     "Workflow Action Master",
+     {
+        "dt": "Property Setter",
+        "filters": [
+            ["doc_type", "in", ["Sales Invoice"]],
+            ["field_name", "in", ["naming_series"]]],
+    },
+    # {
+    #     "dt": "tabDocField",
+    #     "filters": [
+    #         ["parent", "in", ["Sales Invoice"]],
+    #         # ["fieldname", "in", ["naming_series"]]
+    #         ],
+    # },
 ]
 
 

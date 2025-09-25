@@ -70,7 +70,7 @@ class CustomSalesInvoice(SalesInvoice):
         # Identify free medicine items
         free_medicine_items, regular_items = self._separate_free_medicine_items()
 
-        if not free_medicine_items:
+        if not free_medicine_items or not regular_items:
             return
         self._update_parent_quantities(regular_items)
 
