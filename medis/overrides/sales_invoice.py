@@ -187,8 +187,8 @@ class CustomSalesInvoice(SalesInvoice):
         # Copy base header fields from parent
         self._copy_header_fields(child_doc)
 
-        child_doc.name = f"{self.name}-1"
-        child_doc.flags.name_set = True
+        # child_doc.name = f"{self.name}-1"
+        # child_doc.flags.name_set = True
         child_doc.custom_is_split_child = 1
         child_doc.custom_original_invoice = self.name
         child_doc.status = "Unpaid"
