@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:beneficiary_name",
  "creation": "2025-09-25 16:55:24.618035",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -11,16 +12,18 @@
   {
    "fieldname": "beneficiary_name",
    "fieldtype": "Data",
-   "label": "Beneficiary Name"
+   "label": "Beneficiary Name",
+   "unique": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-09-25 16:55:59.630084",
+ "modified": "2025-09-25 20:42:44.404195",
  "modified_by": "Administrator",
  "module": "Medis Invoicing",
- "name": "Beneficiary",
+ "name": "Beneficiary Name",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -36,6 +39,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
