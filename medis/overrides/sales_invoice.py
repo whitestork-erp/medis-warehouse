@@ -2,9 +2,8 @@ import frappe
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import SalesInvoice
 import frappe
 from frappe import _
-
-from collections import defaultdict
 from frappe.model.workflow import apply_workflow
+from frappe.utils import flt
 
 
 class CustomSalesInvoice(SalesInvoice):
@@ -25,6 +24,7 @@ class CustomSalesInvoice(SalesInvoice):
 
     def on_submit(self):
         # Call parent on_submit first
+        self.create_journal_entry()
         super().on_submit()
 
         # Add comments for split invoices if any
@@ -193,7 +193,8 @@ class CustomSalesInvoice(SalesInvoice):
         child_doc.custom_original_invoice = self.name
         child_doc.status = "Unpaid"
         child_doc.workflow_state = "Draft"
-        child_doc.update_stock = True
+        child_doc.update_stock = self.update_stock
+        # child_doc.run_method("set_missing_values")
         # Add items to child invoice
         for item in items:
             self._copy_item_to_child(item, child_doc)
@@ -415,3 +416,46 @@ class CustomSalesInvoice(SalesInvoice):
                 f"Error updating parent references: {str(e)}", "Sales Invoice Split"
             )
             raise e
+
+    def create_journal_entry(self):
+        if not any(item.get("custom_additional_price", 0) != 0 for item in self.items):
+            return
+
+        total_additional_price = sum(item.get("custom_additional_price", 0) for item in self.items)
+        if not total_additional_price:
+            return
+
+        journal_entry_doc = frappe.new_doc("Journal Entry")
+
+        journal_entry_doc.voucher_type = "Journal Entry"
+        journal_entry_doc.posting_date = self.posting_date
+        journal_entry_doc.company = "MedisPrime"
+        journal_entry_doc.user_remark = _("Journal Entry for Sales Invoice {0}").format(self.name)
+
+        if flt(total_additional_price) > 0:
+            journal_entry_doc.append("accounts", {
+				"account": "411000001 - CLIENTS LBP - P",
+				"debit_in_account_currency": abs(flt(total_additional_price)),
+				"party_type": "Customer",
+				"party": self.customer
+			})
+
+            journal_entry_doc.append("accounts", {
+				"account": "70100001 - SALES - P",
+				"credit_in_account_currency": abs(flt(total_additional_price))
+			})
+        else:
+            journal_entry_doc.append("accounts", {
+            "account": "411000001 - CLIENTS LBP - P",
+            "credit_in_account_currency": abs(flt(total_additional_price)),
+            "party_type": "Customer",
+            "party": self.customer
+            })
+            journal_entry_doc.append("accounts", {
+            "account": "67510001 - NORMAL OPERATIONS - P",
+            "debit_in_account_currency": abs(flt(total_additional_price))
+        })
+        journal_entry_doc.insert()
+        journal_entry_doc.submit()
+
+
