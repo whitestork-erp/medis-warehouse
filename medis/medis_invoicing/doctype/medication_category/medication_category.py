@@ -1,0 +1,9 @@
+# Copyright (c) 2025, HHH and contributors
+# For license information, please see license.txt
+
+# import frappe
+from frappe.model.document import Document
+
+
+class MedicationCategory(Document):
+	pass
