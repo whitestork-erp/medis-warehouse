@@ -203,6 +203,9 @@ class CustomSalesInvoice(SalesInvoice):
         if self.taxes:
             self._copy_taxes_to_child(child_doc)
 
+        if self.sales_team:
+            self._copy_sales_team(child_doc)
+
         # Insert, save and submit the child invoice
         child_doc.insert()
         child_doc.save()
@@ -341,11 +344,40 @@ class CustomSalesInvoice(SalesInvoice):
             "customer_group",
             "territory",
             "tax_category",
+            "custom_beneficiary",
         ]
 
         for field in fields_to_copy:
             if hasattr(self, field) and self.get(field):
                 child_doc.set(field, self.get(field))
+
+    def _copy_sales_team(self, child_doc):
+        """
+		Copy sales team entries from parent to child invoice.
+
+		Args:
+				parent_doc: Original Sales Invoice
+				child_doc: Child Sales Invoice
+		"""
+
+        if not self.sales_team:
+            return
+
+        for parent_member in self.sales_team:
+            child_member = child_doc.append("sales_team", {})
+
+            sales_team_fields = [
+				"sales_person",
+				"contact_no",
+				"allocated_percentage",
+				"allocated_amount",
+				"commission_rate",
+				"incentives"
+			]
+
+            for field in sales_team_fields:
+                if hasattr(parent_member, field):
+                    setattr(child_member, field, getattr(parent_member, field, None))
 
     def _should_split_invoice(self):
 
