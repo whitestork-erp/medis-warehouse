@@ -421,9 +421,37 @@ class CustomSalesInvoice(SalesInvoice):
         if not any(item.get("custom_additional_price", 0) != 0 for item in self.items):
             return
 
-        total_additional_price = sum(item.get("custom_additional_price", 0) for item in self.items)
+        total_additional_price = sum((item.get("custom_additional_price", 0) * item.get("qty", 0)) for item in self.items)
         if not total_additional_price:
             return
+
+        invoice_currency = self.currency
+        company_currency = frappe.db.get_value("Company", "MedisPrime", "default_currency")
+
+        account_mapping = {
+			"LBP": {
+				"receivable": "411000001 - CLIENTS LBP - P",
+				"sales": "70100001 - SALES LBP - P",
+				"expense": "67510001 - NORMAL OPERATIONS LBP - P"
+			},
+			"USD": {
+				"receivable": "411000002 - CLIENTS USD - P",
+				"sales": "70100002 - SALES USD - P",
+				"expense": "67510002 - NORMAL OPERATIONS USD - P"
+			},
+			"EUR": {
+				"receivable": "411000003 - CLIENTS EUR - P",
+				"sales": "70100003 - SALES EUR - P",
+				"expense": "67510003 - NORMAL OPERATIONS EUR - P"
+			}
+    	}
+
+        if invoice_currency not in account_mapping:
+            frappe.throw(
+            _("No account mapping configured for currency {0}. Please configure accounts for this currency.").format(invoice_currency)
+            )
+
+        accounts = account_mapping[invoice_currency]
 
         journal_entry_doc = frappe.new_doc("Journal Entry")
 
@@ -432,30 +460,112 @@ class CustomSalesInvoice(SalesInvoice):
         journal_entry_doc.company = "MedisPrime"
         journal_entry_doc.user_remark = _("Journal Entry for Sales Invoice {0}").format(self.name)
 
+
+        if invoice_currency != company_currency:
+           journal_entry_doc.multi_currency = 1
+
+        exchange_rate = flt(self.plc_conversion_rate) or 1.0
+
+
+        cost_center = self.cost_center or get_default_cost_center("MedisPrime")
+        # receivable_account = self.debit_to
+
+
+        abs_amount = abs(flt(total_additional_price))
+        company_currency_amount = abs_amount * exchange_rate
+
         if flt(total_additional_price) > 0:
             journal_entry_doc.append("accounts", {
-				"account": "411000001 - CLIENTS LBP - P",
+				"account": accounts["receivable"],
 				"debit_in_account_currency": abs(flt(total_additional_price)),
+                "credit_in_account_currency": 0,
+                "debit": company_currency_amount,  # Company currency amount
+            	"credit": 0,
 				"party_type": "Customer",
-				"party": self.customer
+				"party": self.customer,
+                # "reference_type": "Sales Invoice",
+                # "reference_name": self.name,
+                "account_currency": invoice_currency,
+                "exchange_rate": exchange_rate,
+                "cost_center": cost_center,
+            	"user_remark": f"Additional price adjustment - {self.name}"
 			})
 
             journal_entry_doc.append("accounts", {
-				"account": "70100001 - SALES - P",
-				"credit_in_account_currency": abs(flt(total_additional_price))
+				"account": accounts["sales"],
+                "debit_in_account_currency": 0,
+				"credit_in_account_currency": abs(flt(total_additional_price)),
+                "debit": 0,
+            	"credit": company_currency_amount,
+                "account_currency": invoice_currency,
+				"exchange_rate": exchange_rate,
+				"cost_center": cost_center,
+				"user_remark": f"Additional price adjustment - {self.name}"
+
 			})
         else:
             journal_entry_doc.append("accounts", {
-            "account": "411000001 - CLIENTS LBP - P",
-            "credit_in_account_currency": abs(flt(total_additional_price)),
-            "party_type": "Customer",
-            "party": self.customer
+				"account": accounts["receivable"],
+				"debit_in_account_currency": 0,
+				"credit_in_account_currency": abs(flt(total_additional_price)),
+				"party_type": "Customer",
+				"party": self.customer,
+				"reference_type": "Sales Invoice",
+				"reference_name": self.name,
+				"account_currency": invoice_currency,
+				"exchange_rate": exchange_rate,
+				"cost_center": cost_center,
+				"user_remark": f"Additional price adjustment - {self.name}"
             })
             journal_entry_doc.append("accounts", {
-            "account": "67510001 - NORMAL OPERATIONS - P",
-            "debit_in_account_currency": abs(flt(total_additional_price))
+				"account": accounts["expense"],
+				"debit_in_account_currency": abs(flt(total_additional_price)),
+				"credit_in_account_currency": 0,
+				"account_currency": invoice_currency,
+				"exchange_rate": exchange_rate,
+				"cost_center": cost_center,
+				"user_remark": f"Additional price adjustment - {self.name}"
         })
         journal_entry_doc.insert()
         journal_entry_doc.submit()
 
 
+# def get_default_cost_center():
+#     """Get default cost center"""
+
+#     if frappe.db.exists("Selling Settings"):
+#         return frappe.db.get_single_value("Selling Settings", "cost_center") or \
+#                 frappe.db.get_value("Company", "MedisPrime", "cost_center")
+
+
+def get_default_cost_center(company):
+    """Get default cost center from Company master"""
+    # First try to get from Company master
+    default_cost_center = frappe.db.get_value("Company", company, "cost_center")
+
+    if default_cost_center:
+        return default_cost_center
+
+    # If not set in Company, try to find the main cost center for the company
+    cost_centers = frappe.get_all("Cost Center",
+        filters={"company": company, "is_group": 0},
+        fields=["name"],
+        order_by="creation asc",
+        limit_page_length=1
+    )
+
+    if cost_centers:
+        return cost_centers[0].name
+
+    # If still not found, try to find any cost center for the company
+    cost_centers = frappe.get_all("Cost Center",
+        filters={"company": company},
+        fields=["name"],
+        limit_page_length=1
+    )
+
+    if cost_centers:
+        return cost_centers[0].name
+
+    # Last resort - return None and let ERPNext handle it
+    return None

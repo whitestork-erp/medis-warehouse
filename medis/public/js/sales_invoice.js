@@ -25,6 +25,7 @@ frappe.ui.form.on("Sales Invoice", {
 
 		// Store the original workflow state to compare after changes
 		frm.workflow_state_before_action = frm.doc.workflow_state;
+		update_currency_labels(frm);
 	},
 
 
@@ -61,6 +62,7 @@ frappe.ui.form.on("Sales Invoice", {
 				}
 			}
 		});
+		update_currency_labels(frm);
 	},
 	naming_series(frm) {
 		if (!frm.doc.naming_series) return;
@@ -75,6 +77,11 @@ frappe.ui.form.on("Sales Invoice", {
 	onload(frm) {
 		frm.trigger("naming_series");
 	},
+	company(frm) {
+		if (!frm.doc.company) return;
+
+		update_currency_labels(frm);
+	}
 });
 
 frappe.ui.form.on("Sales Invoice Item", {
@@ -170,6 +177,17 @@ frappe.ui.form.on("Sales Invoice Item", {
 		}
 	},
 });
+
+function update_currency_labels(frm) {
+    // Get the current currency from the document
+    let current_currency = erpnext.get_currency(frm.doc.company);
+    // Update the custom field label with the current currency
+    if (current_currency) {
+        frm.set_currency_labels(["custom_additional_price"], current_currency, "items");
+		frm.refresh_fields();
+    }
+}
+
 
 frappe.provide("frappe.silent_print");
 frappe.silent_print.WebSocketPrinter = function (options) {
