@@ -28,7 +28,6 @@ frappe.ui.form.on("Sales Invoice", {
 		update_currency_labels(frm);
 	},
 
-
 	after_workflow_action: function (frm) {
 		console.log("After workflow action:", frm.doc.workflow_state);
 		if (frm.doc.workflow_state == "Ready For Picking") {
@@ -81,7 +80,7 @@ frappe.ui.form.on("Sales Invoice", {
 		if (!frm.doc.company) return;
 
 		update_currency_labels(frm);
-	}
+	},
 });
 
 frappe.ui.form.on("Sales Invoice Item", {
@@ -176,18 +175,30 @@ frappe.ui.form.on("Sales Invoice Item", {
 			}, 500); // Delay to allow pricing rules to be applied first, then override
 		}
 	},
+	custom_additional_price: function (frm) {
+		let total = 0;
+		(frm.doc.items || []).forEach((row) => (total += row.custom_additional_price || 0));
+		frm.set_value("custom_total_additional_price", total);
+	},
+	items_remove: function (frm) {
+		let total = 0;
+		(frm.doc.items || []).forEach((row) => (total += row.custom_additional_price || 0));
+		frm.set_value("custom_total_additional_price", total);
+		frm.refresh_fields();
+	},
 });
 
 function update_currency_labels(frm) {
-    // Get the current currency from the document
-    let current_currency = erpnext.get_currency(frm.doc.company);
-    // Update the custom field label with the current currency
-    if (current_currency) {
-        frm.set_currency_labels(["custom_additional_price"], current_currency, "items");
+	// Get the current currency from the document
+	let current_currency =
+		(frm.doc.customer && frm.doc.currency) || erpnext.get_currency(frm.doc.company);
+	// Update the custom field label with the current currency
+	if (current_currency) {
+		frm.set_currency_labels(["custom_additional_price"], current_currency, "items");
+		frm.set_currency_labels(["custom_total_additional_price"], current_currency);
 		frm.refresh_fields();
-    }
+	}
 }
-
 
 frappe.provide("frappe.silent_print");
 frappe.silent_print.WebSocketPrinter = function (options) {
